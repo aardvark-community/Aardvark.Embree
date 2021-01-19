@@ -1,0 +1,14 @@
+*.suo
+*.userprefs
+/packages/*
+obj
+bin
+*.*~
+/.fake
+/paket-files
+**/*.csproj.user
+/.paket
+/build.fsx.lock
+.ionide
+/.vs
+.vscode

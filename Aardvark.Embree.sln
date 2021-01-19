@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30709.132
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7557}") = "Aardvark.Embree", "src\Aardvark.Embree\Aardvark.Embree.csproj", "{7FB423EC-EF32-439D-AFEE-03B5833871E4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBD}") = "Test", "src\Test\Test.csproj", "{7D8C4D56-3F33-4A81-A768-31B295AB6173}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{7FB423EC-EF32-439D-AFEE-03B5833871E4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7FB423EC-EF32-439D-AFEE-03B5833871E4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7FB423EC-EF32-439D-AFEE-03B5833871E4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7FB423EC-EF32-439D-AFEE-03B5833871E4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7D8C4D56-3F33-4A81-A768-31B295AB6173}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7D8C4D56-3F33-4A81-A768-31B295AB6173}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7D8C4D56-3F33-4A81-A768-31B295AB6173}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7D8C4D56-3F33-4A81-A768-31B295AB6173}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {4242144F-895C-4471-B54A-CC934B0DB369}
+	EndGlobalSection
+EndGlobal

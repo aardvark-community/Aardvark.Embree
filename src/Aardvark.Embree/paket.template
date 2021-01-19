@@ -1,0 +1,7 @@
+type project
+id Aardvark.Embree
+authors Aardvark Community
+owners Aardvark Community
+description
+    Aardvark.Embree
+include-pdbs true
