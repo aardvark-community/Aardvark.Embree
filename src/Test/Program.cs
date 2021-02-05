@@ -42,10 +42,12 @@ namespace Test
 
             Report.BeginTimed("Create Scene");
             var geoMap = new Dictionary<uint, EmbreeIndexedGeometry>();
+
+            // geometries with absolute transformation
             foreach (var g in geos)
                 geoMap.Add(scene.Attach(g.EmbreeGeometry), g);
 
-            //var geoMap = new Dictionary<uint, EmbreeIndexedGeometry>();
+            //// instanced geometries with transformation matrix
             //foreach (var g in geos)
             //{
             //    var gi = new GeometryInstance(device, g.EmbreeGeometry, Affine3f.Identity);
@@ -80,14 +82,14 @@ namespace Test
             var viewProj = view * proj;
             var invViewProj = viewProj.Backward;
 
-            RTCFilterFunction filter;
-            unsafe
-            {
-                filter = new RTCFilterFunction(ptr =>
-                {
-                    //((uint*)ptr->valid)[0] = 0;
-                });
-            }
+            RTCFilterFunction filter = null;
+            //unsafe
+            //{
+            //    filter = new RTCFilterFunction(ptr =>
+            //    {
+            //        //((uint*)ptr->valid)[0] = 0;
+            //    });
+            //}
 
             for (int i = 0; i < 20; i++)
             {
@@ -116,7 +118,7 @@ namespace Test
         static C4b GetColor(Scene scene, Ray3d ray, Dictionary<uint, EmbreeIndexedGeometry> geos, RTCFilterFunction filter = null)
         {
             var hit = new RayHit();
-            if (scene.Intersect(ray, ref hit, 0, double.MaxValue, filter))
+            if (scene.Intersect((V3f)ray.Origin, (V3f)ray.Direction, ref hit, 0, float.MaxValue, filter))
             {
                 if (geos.TryGetValue(hit.GeometryId, out var geo))
                 {
@@ -131,8 +133,8 @@ namespace Test
         {
             var deviceCoord = new V2d(uv.X * 2 - 1, -uv.Y * 2 + 1);
 
-            var nearPoint = invViewProj.TransformPosProj(new V3d(deviceCoord.X, deviceCoord.Y, 0));
-            var farPoint = invViewProj.TransformPosProj(new V3d(deviceCoord.X, deviceCoord.Y, 1));
+            var nearPoint = invViewProj.TransformPosProj(deviceCoord.XYO);
+            var farPoint = invViewProj.TransformPosProj(deviceCoord.XYI);
             
             return new Ray3d(nearPoint, (farPoint - nearPoint).Normalized);
         }

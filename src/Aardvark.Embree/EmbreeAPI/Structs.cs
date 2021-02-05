@@ -119,7 +119,7 @@ namespace Aardvark.Embree
         public float minWidthDistanceFactor;
     }
 
-    public struct RTCRay
+    public struct RTCRay // Align 16
     {
         public V3f org;
         public float tnear;
@@ -133,7 +133,7 @@ namespace Aardvark.Embree
         public uint flags;
     }
 
-    public unsafe struct RTCRay4
+    public unsafe struct RTCRay4 // Align 16
     {
         public fixed float org_x[4];
         public fixed float org_y[4];
@@ -151,7 +151,7 @@ namespace Aardvark.Embree
         public fixed uint flags[4];
     }
 
-    public unsafe struct RTCRay8
+    public unsafe struct RTCRay8 // Align 16
     {
         public fixed float org_x[8];
         public fixed float org_y[8];
@@ -169,7 +169,7 @@ namespace Aardvark.Embree
         public fixed uint flags[8];
     }
 
-    public unsafe struct RTCRay16
+    public unsafe struct RTCRay16 // Align 16
     {
         public fixed float org_x[16];
         public fixed float org_y[16];
@@ -187,7 +187,7 @@ namespace Aardvark.Embree
         public fixed uint flags[16];
     }
 
-    public struct RTCHit
+    public struct RTCHit // Align 16
     {
         public V3f Ng; // unnormalized geometry normal in object space
         public V2f uv; // local hit coordinates
@@ -196,7 +196,7 @@ namespace Aardvark.Embree
         public uint instID;
     }
 
-    public unsafe struct RTCHit4
+    public unsafe struct RTCHit4 // Align 16
     {
         public fixed float Ng_x[4];
         public fixed float Ng_y[4];
@@ -210,7 +210,7 @@ namespace Aardvark.Embree
         public fixed uint instID[4];
     }
 
-    public unsafe struct RTCHit8
+    public unsafe struct RTCHit8 // Align 16
     {
         public fixed float Ng_x[8];
         public fixed float Ng_y[8];
@@ -224,7 +224,7 @@ namespace Aardvark.Embree
         public fixed uint instID[8];
     }
 
-    public unsafe struct RTCHit16
+    public unsafe struct RTCHit16 // Align 16
     {
         public fixed float Ng_x[16];
         public fixed float Ng_y[16];
@@ -238,25 +238,25 @@ namespace Aardvark.Embree
         public fixed uint instID[16];
     }
 
-    public struct RTCRayHit
+    public struct RTCRayHit // Align 16
     {
         public RTCRay ray;
         public RTCHit hit;
     }
 
-    public struct RTCRayHit4
+    public struct RTCRayHit4 // Align 16
     {
         public RTCRay4 ray;
         public RTCHit4 hit;
     }
 
-    public struct RTCRayHit8
+    public struct RTCRayHit8 // Align 16
     {
         public RTCRay8 ray;
         public RTCHit8 hit;
     }
 
-    public struct RTCRayHit16
+    public struct RTCRayHit16 // Align 16
     {
         public RTCRay16 ray;
         public RTCHit16 hit;

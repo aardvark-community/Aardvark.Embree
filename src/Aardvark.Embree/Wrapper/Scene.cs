@@ -134,7 +134,7 @@ namespace Aardvark.Embree
             }
         }
 
-        public bool Intersect(Ray3d ray, ref RayHit hit, double minT = 0.0, double maxT = double.MaxValue, RTCFilterFunction filter = null)
+        public bool Intersect(V3f rayOrigin, V3f rayDirection, ref RayHit hit, float minT = 0.0f, float maxT = float.MaxValue, RTCFilterFunction filter = null)
         {
             // NOTE: rtcInitIntersectContext is an inline method -> do manually
             var ctx = new RTCIntersectContext()
@@ -147,10 +147,10 @@ namespace Aardvark.Embree
             {
                 ray = new RTCRay()
                 {
-                    org = (V3f)ray.Origin,
-                    dir = (V3f)ray.Direction,
-                    tnear = (float)minT,
-                    tfar = maxT > float.MaxValue ? float.MaxValue : (float)maxT,
+                    org = rayOrigin,
+                    dir = rayDirection,
+                    tnear = minT,
+                    tfar = maxT,
                     flags = 0, // must be initialized with 0
                     time = 0,
                     mask = 0,
@@ -184,7 +184,7 @@ namespace Aardvark.Embree
             return false;
         }
 
-        public bool Occluded(Ray3d ray, double minT = 0.0, double maxT = double.MaxValue, RTCFilterFunction filter = null)
+        public bool Occluded(V3f rayOrigin, V3f rayDirection, float minT = 0.0f, float maxT = float.MaxValue, RTCFilterFunction filter = null)
         {
             // NOTE: rtcInitIntersectContext is an inline method -> do manually
             var ctx = new RTCIntersectContext()
@@ -195,10 +195,10 @@ namespace Aardvark.Embree
 
             var rtRay = new RTCRay()
             {
-                org = (V3f)ray.Origin,
-                dir = (V3f)ray.Direction,
-                tnear = (float)minT,
-                tfar = maxT > float.MaxValue ? float.MaxValue : (float)maxT,
+                org = rayOrigin,
+                dir = rayDirection,
+                tnear = minT,
+                tfar = maxT,
                 flags = 0, // must be initialized with 0
                 time = 0,
                 mask = 0,
