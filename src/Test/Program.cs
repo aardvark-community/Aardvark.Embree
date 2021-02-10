@@ -1,5 +1,6 @@
 ﻿using Aardvark.Base;
 using Aardvark.Embree;
+using Aardvark.Rendering;
 using System;
 using System.Diagnostics;
 using System.IO;
