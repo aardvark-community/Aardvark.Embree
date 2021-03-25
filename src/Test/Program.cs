@@ -20,6 +20,8 @@ namespace Test
             var device = new Device();
 
             Report.Line("Version={0}", device.Version);
+            Report.Line("RayMaskSupported={0}", device.RayMaskSupported);
+            Report.Line("FilterFunctionSupported={0}", device.FilterFunctionSupported);
 
             var geos = new[]
             {

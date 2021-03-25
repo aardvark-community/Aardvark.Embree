@@ -53,6 +53,24 @@ namespace Aardvark.Embree
             }
         }
 
+        public bool RayMaskSupported
+        {
+            get
+            {
+                var supported = EmbreeAPI.rtcGetDeviceProperty(Handle, RTCDeviceProperty.RayMaskSupported);
+                return supported != 0;
+            }
+        }
+
+        public bool FilterFunctionSupported
+        {
+            get
+            {
+                var supported = EmbreeAPI.rtcGetDeviceProperty(Handle, RTCDeviceProperty.FilterFunctionSupported);
+                return supported != 0;
+            }
+        }
+
         public void Dispose()
         {
             EmbreeAPI.rtcReleaseDevice(Handle);
