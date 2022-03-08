@@ -1,15 +1,11 @@
 framework: netstandard2.0, netcoreapp3.1
+storage: none
 
 source https://api.nuget.org/v3/index.json
-source https://vrvis.myget.org/F/aardvark_public/api/v2
 
-nuget Aardvark.Base                ~> 5.1.3
-nuget Aardvark.Base.Tensors        ~> 5.1.3
+nuget Aardvark.Build               ~> 1.0.11
 
-nuget Aardvark.SceneGraph          ~> 5.1.2
+nuget Aardvark.Base                ~> 5.2.2
+nuget Aardvark.Base.Tensors        ~> 5.2.2
 
-
-group Build
-framework: netstandard2.0
-source https://api.nuget.org/v3/index.json
-github aardvark-platform/aardvark.fake:v511
+nuget Aardvark.SceneGraph          ~> 5.2.1

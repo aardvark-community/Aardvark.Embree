@@ -12,3 +12,4 @@ bin
 .ionide
 /.vs
 .vscode
+src/.vs

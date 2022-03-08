@@ -2,6 +2,10 @@ type project
 id Aardvark.Embree
 authors Aardvark Community
 owners Aardvark Community
+projectUrl https://github.com/aardvark-community/Aardvark.Embree
+licenseUrl http://www.apache.org/licenses/LICENSE-2.0.txt
+repositoryType git
+repositoryUrl https://github.com/aardvark-community/Aardvark.Embree
 description
     Aardvark.Embree
 include-pdbs true
