@@ -2,7 +2,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <OutputPath>..\..\bin\Debug</OutputPath>
@@ -13,14 +13,6 @@
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\Aardvark.Embree\Aardvark.Embree.csproj" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="..\..\lib\Native\Aardvark.Embree\windows\AMD64\embree3.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="..\..\lib\Native\Aardvark.Embree\windows\AMD64\tbb12.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
   <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>
