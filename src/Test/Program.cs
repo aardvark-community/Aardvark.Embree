@@ -70,7 +70,7 @@ namespace Test
             var pix = RenderSimple(scene, vpSize.X, vpSize.Y, cam.ViewTrafo, proj.ProjectionTrafo, geoMap);
 
             device.Dispose();
-
+            
             var file = "Embree.png";
             pix.Save(file);
 

@@ -1,3 +1,6 @@
+### 0.3.1
+- added native Linux binaries
+
 ### 0.3.0
 - updated to Aardvark 5.2
 

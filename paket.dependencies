@@ -5,7 +5,7 @@ source https://api.nuget.org/v3/index.json
 
 nuget Aardvark.Build               ~> 1.0.20
 
-nuget Aardvark.Base                ~> 5.2.2
-nuget Aardvark.Base.Tensors        ~> 5.2.2
+nuget Aardvark.Base                ~> 5.2.6
+nuget Aardvark.Base.Tensors        ~> 5.2.6
 
 nuget Aardvark.SceneGraph          ~> 5.4.0
