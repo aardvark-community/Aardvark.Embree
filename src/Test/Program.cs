@@ -71,8 +71,8 @@ namespace Test
 
             device.Dispose();
 
-            var file = "C:\\Debug\\Embree.png";
-            pix.SaveAsImage(file);
+            var file = "Embree.png";
+            pix.Save(file);
 
             //Process.Start(file);
         }
