@@ -1,3 +1,6 @@
+### 0.3.2
+- updated to Aardvark 5.3
+
 ### 0.3.2-prerelease0001
 - updated to Aardvark 5.3 (prerelease)
  
