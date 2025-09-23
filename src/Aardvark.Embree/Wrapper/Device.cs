@@ -1,6 +1,5 @@
-﻿using System;
-using System.Runtime.InteropServices;
-using Aardvark.Base;
+﻿using Aardvark.Base;
+using System;
 
 namespace Aardvark.Embree
 {

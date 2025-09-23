@@ -1,8 +1,5 @@
 ﻿using Aardvark.Base;
 using System;
-using System.Collections.Generic;
-using System.Runtime.InteropServices;
-using System.Text;
 
 namespace Aardvark.Embree
 {
@@ -35,8 +32,8 @@ namespace Aardvark.Embree
 
     public class TriangleGeometry : EmbreeGeometry
     {
-        EmbreeBuffer m_vertices;
-        EmbreeBuffer m_indices;
+        private readonly EmbreeBuffer m_vertices;
+        private readonly EmbreeBuffer m_indices;
 
         public TriangleGeometry(Device device, V3f[] vertices, int[] triangleIndices, RTCBuildQuality quality)
             : base(device, RTCGeometryType.Triangle, quality)

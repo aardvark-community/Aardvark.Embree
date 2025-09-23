@@ -1,19 +1,20 @@
 ﻿using Aardvark.Base;
 using Aardvark.Embree;
 using Aardvark.Rendering;
-using System;
-using System.Diagnostics;
-using System.IO;
 using Aardvark.SceneGraph;
-using System.Threading.Tasks;
+using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Test
 {
     class Program
     {
+#pragma warning disable IDE0060 // Remove unused parameter
         static void Main(string[] args)
+#pragma warning restore IDE0060 // Remove unused parameter
         {
             Aardvark.Base.Aardvark.Init(); // PixImage DevIL init
 
@@ -60,8 +61,10 @@ namespace Test
             scene.Commit();
             Report.End();
 
-            var cam = new CameraViewWithSky();
-            cam.Location = V3d.III * 0.8;
+            var cam = new CameraViewWithSky
+            {
+                Location = V3d.III * 0.8
+            };
             cam.LookAt(V3d.OOO);
 
             var vpSize = new V2i(3840, 2160);
@@ -94,7 +97,7 @@ namespace Test
             //    });
             //}
 
-            for (int i = 0; i < 20; i++)
+            for (int i = 0; i < 50; i++)
             {
                 var sw = Stopwatch.StartNew();
                 Parallel.For(0, height, new ParallelOptions(), y =>
@@ -161,6 +164,7 @@ namespace Test
         {
             EmbreeGeometry.Dispose();
             EmbreeGeometry = null;
+            GC.SuppressFinalize(this);
         }
     }
 }

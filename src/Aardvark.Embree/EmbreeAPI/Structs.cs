@@ -11,9 +11,9 @@ namespace Aardvark.Embree
     public struct RTCBounds
     {
         public V3f lower;
-        private float align0;
+        private readonly float align0;
         public V3f upper;
-        private float align1;
+        private readonly float align1;
     }
 
     /// <summary>

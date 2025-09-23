@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
-using System.Text;
 
 namespace Aardvark.Embree
 {
@@ -70,9 +69,9 @@ namespace Aardvark.Embree
 
     public class Scene : IDisposable
     {
-        Device m_device;
+        private readonly Device m_device;
 
-        Dictionary<uint, EmbreeGeometry> m_geometries = new Dictionary<uint, EmbreeGeometry>();
+        private readonly Dictionary<uint, EmbreeGeometry> m_geometries = new Dictionary<uint, EmbreeGeometry>();
 
         public IntPtr Handle { get; private set; }
 

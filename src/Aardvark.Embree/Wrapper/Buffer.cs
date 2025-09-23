@@ -5,8 +5,8 @@ namespace Aardvark.Embree
 {
     public class EmbreeBuffer : IDisposable
     {
-        ulong m_size; // size in bytes
-        IntPtr m_dataPtr;
+        private readonly ulong m_size; // size in bytes
+        private readonly IntPtr m_dataPtr;
         
         public IntPtr Handle { get; private set; }
 

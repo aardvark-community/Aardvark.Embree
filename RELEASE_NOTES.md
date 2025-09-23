@@ -1,3 +1,7 @@
+### 0.3.3
+- updated tools and packages
+- fixed CA* messages (VS22)
+
 ### 0.3.2
 - updated to Aardvark 5.3
 
