@@ -67,11 +67,11 @@ namespace Aardvark.Embree
 
     public unsafe delegate void RTCFilterFunction(RTCFilterFunctionNArguments* args);
 
-    public class Scene : IDisposable
+    public partial class Scene : IDisposable
     {
         private readonly Device m_device;
 
-        private readonly Dictionary<uint, EmbreeGeometry> m_geometries = new Dictionary<uint, EmbreeGeometry>();
+        private readonly Dictionary<uint, EmbreeGeometry> m_geometries = [];
 
         public IntPtr Handle { get; private set; }
 
@@ -214,5 +214,57 @@ namespace Aardvark.Embree
             // tfar set to -inf if intersection is found
             return rtRay.tfar == float.NegativeInfinity;
         }
+
+
+        public readonly struct NearestHit
+        {
+            public readonly bool Found;
+            public readonly V3f PointWS;
+            public readonly float Distance;
+            public readonly uint GeomID, PrimID;
+
+            public NearestHit(bool found, V3f p, float d, uint gid, uint pid)
+                => (Found, PointWS, Distance, GeomID, PrimID) = (found, p, d, gid, pid);
+        }
+
+        //public bool PointQuery(V3f point, float radius = float.PositiveInfinity, float time = 0.0f)
+        //{
+        //    var query = new RTCPointQuery()
+        //    {
+        //        p = point,
+        //        radius = radius,
+        //        time = time
+        //    };
+
+        //    // NOTE: rtcInitIntersectContext is an inline method -> do manually
+        //    var ctx = new RTCPointQueryContext()
+        //    {
+        //        instID = unchecked((uint)-1), // need to be initialized with RTC_INVALID_GEOMETRY_ID
+        //        inst2world = M44f.Identity,
+        //        world2inst = M44f.Identity,
+        //        instStackSize = 0
+        //    };
+
+        //    unsafe
+        //    {
+        //        //var ctxPt = &ctx;
+        //        //var rayHitPt = &rayHit;
+        //        EmbreeAPI.rtcPointQuery(Handle, query, ctx, IntPtr.Zero, IntPtr.Zero);
+        //    }
+
+        //    //if (rayHit.hit.geomID != unchecked((uint)-1))
+        //    //{
+        //    //    hit.T = rayHit.ray.tfar;
+        //    //    hit.Coord = rayHit.hit.uv;
+        //    //    hit.Normal = rayHit.hit.Ng;
+        //    //    hit.PrimitiveId = rayHit.hit.primID;
+        //    //    hit.GeometryId = rayHit.hit.geomID;
+        //    //    hit.InstanceId = rayHit.hit.instID;
+
+        //    //    return true;
+        //    //}
+
+        //    return false;
+        //}
     }
 }
