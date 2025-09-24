@@ -117,8 +117,8 @@ internal static class BvhTest
             Report.BeginTimed("compute nearest distance");
             for (var i = 0; i < qs.Length; i++)
             {
-                    var foo = scene.Nearest(qs[i]);
-                    //Report.Line($"{foo.PointWS}");
+                var foo = scene.GetClosestPoint(qs[i]);
+                //Report.Line($"{foo.Point}");
             }
             totalSeconds = Report.EndTimed();
             Report.Line($"avg {qs.Length / totalSeconds:N0} queries/sec");
