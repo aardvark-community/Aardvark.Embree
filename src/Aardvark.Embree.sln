@@ -1,11 +1,24 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.30709.132
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36511.14 d17.14
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7557}") = "Aardvark.Embree", "Aardvark.Embree\Aardvark.Embree.csproj", "{7FB423EC-EF32-439D-AFEE-03B5833871E4}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aardvark.Embree", "Aardvark.Embree\Aardvark.Embree.csproj", "{7FB423EC-EF32-439D-AFEE-03B5833871E4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBD}") = "Test", "Test\Test.csproj", "{7D8C4D56-3F33-4A81-A768-31B295AB6173}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test", "Test\Test.csproj", "{7D8C4D56-3F33-4A81-A768-31B295AB6173}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "_", "_", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
+	ProjectSection(SolutionItems) = preProject
+		..\.gitignore = ..\.gitignore
+		..\build.cmd = ..\build.cmd
+		..\build.sh = ..\build.sh
+		..\global.json = ..\global.json
+		..\LICENSE.txt = ..\LICENSE.txt
+		..\paket.dependencies = ..\paket.dependencies
+		..\paket.lock = ..\paket.lock
+		..\README.md = ..\README.md
+		..\RELEASE_NOTES.md = ..\RELEASE_NOTES.md
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

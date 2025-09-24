@@ -27,6 +27,20 @@ namespace Aardvark.Embree
     }
 
     [StructLayout(LayoutKind.Sequential)]
+    internal struct RTCPointQueryFunctionArguments
+    {
+        public IntPtr query;          // RTCPointQuery*
+        public IntPtr userPtr;        // void*
+        public uint primID;
+        public uint geomID;
+        public IntPtr context;        // RTCPointQueryContext* (opaque for us)
+        public float similarityScale; // >0 when instance transform is similarity
+    }
+
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    internal unsafe delegate bool RTCPointQueryFunction(ref RTCPointQueryFunctionArguments args);
+
+    [StructLayout(LayoutKind.Sequential)]
     public struct RTCPointQuery
     {
         public V3f p;

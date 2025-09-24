@@ -103,7 +103,7 @@ namespace Aardvark.Embree
 		/// </summary>
         [DllImport("embree3")]
         public static extern IntPtr rtcGetGeometryBufferData(IntPtr geometry, RTCBufferType type, uint slot);
-
+       
         /// <summary>
 		/// Updates a geometry buffer. 
 		/// </summary>

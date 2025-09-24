@@ -1,3 +1,6 @@
+### 0.3.4
+- Scene.GetClosestPoint(V3f queryPoint)
+
 ### 0.3.3
 - updated tools and packages
 - fixed CA* messages (VS22)

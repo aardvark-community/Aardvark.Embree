@@ -67,11 +67,14 @@ namespace Aardvark.Embree
 
     public unsafe delegate void RTCFilterFunction(RTCFilterFunctionNArguments* args);
 
-    public class Scene : IDisposable
+    public partial class Scene : IDisposable
     {
+        // #define RTC_INVALID_GEOMETRY_ID ((uniform unsigned int)-1)
+        private const uint RTC_INVALID_GEOMETRY_ID = unchecked((uint)-1);
+
         private readonly Device m_device;
 
-        private readonly Dictionary<uint, EmbreeGeometry> m_geometries = new Dictionary<uint, EmbreeGeometry>();
+        private readonly Dictionary<uint, EmbreeGeometry> m_geometries = [];
 
         public IntPtr Handle { get; private set; }
 
@@ -138,7 +141,7 @@ namespace Aardvark.Embree
             // NOTE: rtcInitIntersectContext is an inline method -> do manually
             var ctx = new RTCIntersectContext()
             {
-                instID = unchecked((uint)-1), // need to be initialized with RTC_INVALID_GEOMETRY_ID
+                instID = RTC_INVALID_GEOMETRY_ID, // need to be initialized with RTC_INVALID_GEOMETRY_ID
                 filter = filter != null ? Marshal.GetFunctionPointerForDelegate(filter) : IntPtr.Zero,
             };
 
@@ -188,7 +191,7 @@ namespace Aardvark.Embree
             // NOTE: rtcInitIntersectContext is an inline method -> do manually
             var ctx = new RTCIntersectContext()
             {
-                instID = unchecked((uint)-1),
+                instID = RTC_INVALID_GEOMETRY_ID,
                 filter = filter != null ? Marshal.GetFunctionPointerForDelegate(filter) : IntPtr.Zero,
             };
 
@@ -214,5 +217,6 @@ namespace Aardvark.Embree
             // tfar set to -inf if intersection is found
             return rtRay.tfar == float.NegativeInfinity;
         }
+
     }
 }

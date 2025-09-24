@@ -54,7 +54,6 @@ namespace Aardvark.Embree
         [DllImport("embree3")]
         public static extern IntPtr rtcGetGeometry(IntPtr scene, uint geomID);
 
-
         /// <summary>
         /// Commits the scene.
         /// </summary>
@@ -103,7 +102,16 @@ namespace Aardvark.Embree
         /// Perform a closest point query of the scene.
         /// </summary>
         [DllImport("embree3")]
-        public static extern bool rtcPointQuery(IntPtr scene, RTCPointQuery query, RTCPointQueryContext context, IntPtr queryFunc, IntPtr userPtr);
+        //public static extern bool rtcPointQuery(IntPtr scene, RTCPointQuery query, RTCPointQueryContext context, IntPtr queryFunc, IntPtr userPtr);
+        internal static unsafe extern bool rtcPointQuery(IntPtr scene, RTCPointQuery* query, RTCPointQueryContext context, RTCPointQueryFunction queryFunc, IntPtr userPtr);
+
+        //[DllImport("embree3", CallingConvention = CallingConvention.Cdecl)]
+        //internal static extern bool rtcPointQuery(
+        //IntPtr scene,
+        //RTCPointQuery* query,        // pointer keeps 16-byte alignment when stackalloc'ed
+        //IntPtr context,
+        //RTCPointQueryFunction queryFunc,
+        //IntPtr userPtr);
 
         /// <summary>
         /// Perform a closest point query with a packet of 4 points with the scene.
