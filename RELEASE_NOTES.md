@@ -1,3 +1,6 @@
+### 0.3.5
+- GetClosestPoint now also returns barycentric coordinates UV
+
 ### 0.3.4
 - Scene.GetClosestPoint(V3f queryPoint)
 

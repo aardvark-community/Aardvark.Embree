@@ -14,12 +14,14 @@ public unsafe partial class Scene
     {
         public readonly bool IsValid;
         public readonly V3f Point;
+        public readonly V2f UV;
         public readonly float DistanceSquared;
         public readonly uint GeomID;
         public readonly uint PrimID;
 
-        public ClosestPointInfo(bool isValid, V3f p, float d2, uint gid, uint pid)
-            => (IsValid, Point, DistanceSquared, GeomID, PrimID) = (isValid, p, d2, gid, pid);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public ClosestPointInfo(bool isValid, in V3f p, in V2f uv, float d2, uint gid, uint pid)
+            => (IsValid, Point, UV, DistanceSquared, GeomID, PrimID) = (isValid, p, uv, d2, gid, pid);
     }
 
     public ClosestPointInfo GetClosestPoint(V3f queryPoint, float maxRadius = float.PositiveInfinity)
@@ -60,12 +62,13 @@ public unsafe partial class Scene
         public readonly V3f Query = q;
         public float BestDistSq = float.PositiveInfinity;
         public V3f BestPoint;
+        public V2f BestUV;
         public uint GeomID = 0xffffffffu, PrimID = 0xffffffffu;
 
         public ClosestPointInfo ToResult()
             => float.IsPositiveInfinity(BestDistSq)
-               ? new ClosestPointInfo(false, default, float.PositiveInfinity, 0xffffffffu, 0xffffffffu)
-               : new ClosestPointInfo(true, BestPoint, BestDistSq, GeomID, PrimID);
+               ? new ClosestPointInfo(false, default, default, float.PositiveInfinity, 0xffffffffu, 0xffffffffu)
+               : new ClosestPointInfo(true, BestPoint, BestUV, BestDistSq, GeomID, PrimID);
     }
 
     // --------- Embree callback ------------
@@ -109,7 +112,7 @@ public unsafe partial class Scene
         // (We keep v1 minimal here; scenes without instances work out of the box.)
 
         // closest point on triangle and squared distance
-        V3f cp = ClosestPointOnTriangle(st.Query, triangle.P0, triangle.P1, triangle.P2, out float d2);
+        V3f cp = ClosestPointOnTriangle(st.Query, triangle.P0, triangle.P1, triangle.P2, out float d2, out float u, out float v);
         //V3f cp = triangle.GetClosestPointOn(st.Query);
         //var d2 = (cp - st.Query).LengthSquared;
 
@@ -117,6 +120,7 @@ public unsafe partial class Scene
         {
             st.BestDistSq = d2;
             st.BestPoint = cp;
+            st.BestUV = new V2f(u, v);
             st.GeomID = a.geomID;
             st.PrimID = a.primID;
 
@@ -128,49 +132,65 @@ public unsafe partial class Scene
         return false;
     }
 
-    private static V3f ClosestPointOnTriangle(in V3f p, in V3f a, in V3f b, in V3f c, out float distSq)
+    // Returns closest point + squared distance + (u,v) such that
+    // q = a + u*(b - a) + v*(c - a).  (Note: barycentrics = (1-u-v, u, v))
+    private static V3f ClosestPointOnTriangle(
+        in V3f p, in V3f a, in V3f b, in V3f c,
+        out float distSq, out float u, out float v)
     {
         var ab = b - a; var ac = c - a; var ap = p - a;
         float d1 = Vec.Dot(ab, ap);
         float d2 = Vec.Dot(ac, ap);
-        if (d1 <= 0 && d2 <= 0) { distSq = ap.LengthSquared; return a; }
+        if (d1 <= 0 && d2 <= 0) { distSq = ap.LengthSquared; u = 0f; v = 0f; return a; }
 
         var bp = p - b;
         float d3 = Vec.Dot(ab, bp);
         float d4 = Vec.Dot(ac, bp);
-        if (d3 >= 0 && d4 <= d3) { distSq = bp.LengthSquared; return b; }
+        if (d3 >= 0 && d4 <= d3) { distSq = bp.LengthSquared; u = 1f; v = 0f; return b; }
 
         float vc = d1 * d4 - d3 * d2;
         if (vc <= 0 && d1 >= 0 && d3 <= 0)
         {
-            float v = d1 / (d1 - d3);
-            var q = a + v * ab; distSq = (p - q).LengthSquared; return q;
+            float t = d1 / (d1 - d3);          // along AB
+            var q = a + t * ab;
+            distSq = (p - q).LengthSquared;
+            u = t; v = 0f;                      // q = a + u*ab
+            return q;
         }
 
         var cp2 = p - c;
         float d5 = Vec.Dot(ab, cp2);
         float d6 = Vec.Dot(ac, cp2);
-        if (d6 >= 0 && d5 <= d6) { distSq = cp2.LengthSquared; return c; }
+        if (d6 >= 0 && d5 <= d6) { distSq = cp2.LengthSquared; u = 0f; v = 1f; return c; }
 
         float vb = d5 * d2 - d1 * d6;
         if (vb <= 0 && d2 >= 0 && d6 <= 0)
         {
-            float w = d2 / (d2 - d6);
-            var q = a + w * ac; distSq = (p - q).LengthSquared; return q;
+            float t = d2 / (d2 - d6);          // along AC
+            var q = a + t * ac;
+            distSq = (p - q).LengthSquared;
+            u = 0f; v = t;                      // q = a + v*ac
+            return q;
         }
 
         float va = d3 * d6 - d5 * d4;
         if (va <= 0 && (d4 - d3) >= 0 && (d5 - d6) >= 0)
         {
-            float w = (d4 - d3) / ((d4 - d3) + (d5 - d6));
-            var q = b + w * (c - b); distSq = (p - q).LengthSquared; return q;
+            float t = (d4 - d3) / ((d4 - d3) + (d5 - d6)); // along BC
+            var q = b + t * (c - b);
+            distSq = (p - q).LengthSquared;
+            u = 1f - t; v = t;                 // since q = (1-t)B + tC = a + u*ab + v*ac
+            return q;
         }
 
         // inside face
         float denom = 1.0f / (va + vb + vc);
-        float v2 = vb * denom, w2 = vc * denom;
-        var inside = a + ab * v2 + ac * w2;
+        float uBary = vb * denom;   // weight of B
+        float vBary = vc * denom;   // weight of C
+        var inside = a + ab * uBary + ac * vBary;
         distSq = (p - inside).LengthSquared;
+        u = uBary; v = vBary;       // exactly the requested (u,v)
         return inside;
     }
+
 }
