@@ -1,56 +1,62 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 
-namespace Aardvark.Embree
+namespace Aardvark.Embree;
+
+public static class EmbreeBuffer
 {
-    public class EmbreeBuffer : IDisposable
+    public static EmbreeBuffer<T> Create<T>(Device device, ReadOnlyMemory<T> data)
+        where T : unmanaged
     {
-        private readonly ulong m_size; // size in bytes
-        private readonly IntPtr m_dataPtr;
-        
-        public IntPtr Handle { get; private set; }
+        return new EmbreeBuffer<T>(device, data);
+    }
 
-        public EmbreeBuffer(Device device, Array data)
-        {
-            var elementType = data.GetType().GetElementType();
-            m_size = (ulong)Marshal.SizeOf(elementType) * (ulong)data.Length;
+    public static EmbreeBuffer<T> Create<T>(Device device, T[] data)
+        where T : unmanaged
+    {
+        return new EmbreeBuffer<T>(device, data);
+    }
+}
 
-            Handle = EmbreeAPI.rtcNewBuffer(device.Handle, m_size);
-            m_dataPtr = EmbreeAPI.rtcGetBufferData(Handle);
+public class EmbreeBuffer<T> : IDisposable
+    where T : unmanaged
+{
+    private readonly IntPtr m_dataPtr;
+    private readonly ulong m_size;
 
-            Upload(data);
+    public IntPtr Handle { get; private set; }
 
-            device.CheckError("CreateBuffer");
-        }
+    public EmbreeBuffer(Device device, ReadOnlyMemory<T> data)
+    {
+        m_size = (ulong)Marshal.SizeOf(typeof(T)) * (ulong)data.Length;
 
-        void Upload(Array data)
-        {
-            var sourcePtr = GCHandle.Alloc(data, GCHandleType.Pinned);
-            try
-            {
-                unsafe
-                {
-                    Buffer.MemoryCopy((void*)sourcePtr.AddrOfPinnedObject(), (void*)m_dataPtr, m_size, m_size);
-                }
-            }
-            finally
-            { 
-                sourcePtr.Free();
-            }
-        }
+        Handle = EmbreeAPI.rtcNewBuffer(device.Handle, m_size);
+        m_dataPtr = EmbreeAPI.rtcGetBufferData(Handle);
 
-        public void Update(Array data)
-        {
-            var elementType = data.GetType().GetElementType();
-            var size = (ulong)Marshal.SizeOf(elementType) * (ulong)data.Length;
-            if (size != m_size) throw new ArgumentException("data size does not match");
-            Upload(data);
-        }
+        Upload(data);
 
-        public void Dispose()
-        {
-            EmbreeAPI.rtcReleaseBuffer(Handle);
-            Handle = IntPtr.Zero;
-        }
+        device.CheckError("CreateBuffer");
+    }
+
+    private unsafe void Upload(ReadOnlyMemory<T> data)
+    {
+        using var handle = data.Pin();             // pins the actual backing store
+        void* src = handle.Pointer;                // pointer to first element of the slice
+
+        nuint bytes = (nuint)(data.Length * sizeof(T));
+        Buffer.MemoryCopy(src, (void*)m_dataPtr, m_size, bytes);
+    }
+
+    public void Update(ReadOnlyMemory<T> data)
+    {
+        var size = (ulong)Marshal.SizeOf(typeof(T)) * (ulong)data.Length;
+        if (size != m_size) throw new ArgumentException("data size does not match");
+        Upload(data);
+    }
+
+    public void Dispose()
+    {
+        EmbreeAPI.rtcReleaseBuffer(Handle);
+        Handle = IntPtr.Zero;
     }
 }

@@ -32,14 +32,14 @@ namespace Aardvark.Embree
 
     public class TriangleGeometry : EmbreeGeometry
     {
-        private readonly EmbreeBuffer m_vertices;
-        private readonly EmbreeBuffer m_indices;
+        private readonly EmbreeBuffer<V3f> m_vertices;
+        private readonly EmbreeBuffer<int> m_indices;
 
-        public TriangleGeometry(Device device, V3f[] vertices, int[] triangleIndices, RTCBuildQuality quality)
+        public TriangleGeometry(Device device, ReadOnlyMemory<V3f> vertices, ReadOnlyMemory<int> triangleIndices, RTCBuildQuality quality)
             : base(device, RTCGeometryType.Triangle, quality)
         {
-            m_vertices = new EmbreeBuffer(device, vertices);
-            m_indices = new EmbreeBuffer(device, triangleIndices);
+            m_vertices = EmbreeBuffer.Create(device, vertices);
+            m_indices = EmbreeBuffer.Create(device, triangleIndices);
 
             // triangle index buffer needs to be UINT3
             EmbreeAPI.rtcSetGeometryBuffer(Handle, RTCBufferType.Index, 0, RTCFormat.UINT3, m_indices.Handle, 0, sizeof(int) * 3, (ulong)(triangleIndices.Length / 3));
@@ -54,7 +54,7 @@ namespace Aardvark.Embree
         /// <summary>
         /// Create TriangleGeometry from buffers. Indices expected to be int32 and vertices to be V3f.
         /// </summary>
-        public TriangleGeometry(Device device, EmbreeBuffer vertexBuffer, int vertexOffset, int vertexCount, EmbreeBuffer indexBuffer, int indexOffset, int triangleCount, RTCBuildQuality quality)
+        public TriangleGeometry(Device device, EmbreeBuffer<V3f> vertexBuffer, int vertexOffset, int vertexCount, EmbreeBuffer<int> indexBuffer, int indexOffset, int triangleCount, RTCBuildQuality quality)
             : base(device, RTCGeometryType.Triangle, quality)
         {
             EmbreeAPI.rtcRetainBuffer(vertexBuffer.Handle);
