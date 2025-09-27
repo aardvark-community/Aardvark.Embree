@@ -1,3 +1,6 @@
+### 0.3.7
+- various cleanups
+
 ### 0.3.6
 - EmbreeBuffer is now generic and takes ReadOnlyMemory<T>
 - TriangleGeometry now takes ReadOnlyMemory instead of Arrays

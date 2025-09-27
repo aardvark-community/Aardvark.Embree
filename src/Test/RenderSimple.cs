@@ -47,7 +47,7 @@ internal static class RenderSimpleTest
 
         // geometries with absolute transformation
         foreach (var g in geos)
-            geoMap.Add(scene.Attach(g.EmbreeGeometry), g);
+            geoMap.Add(scene.AttachGeometry(g.EmbreeGeometry), g);
 
         //// instanced geometries with transformation matrix
         //foreach (var g in geos)

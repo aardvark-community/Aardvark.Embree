@@ -88,7 +88,7 @@ internal static class BvhTest
             var geometry = new TriangleGeometry(device, pa, ia, RTCBuildQuality.High);
 
             var scene = new Scene(device, RTCBuildQuality.High, false);
-            var id = scene.Attach(geometry);
+            var id = scene.AttachGeometry(geometry);
             scene.Commit();
 
             Report.EndTimed();
