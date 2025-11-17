@@ -1,8 +1,7 @@
 # Aardvark.Embree
 
-![Windows](https://github.com/aardvark-community/Aardvark.Embree/workflows/Windows/badge.svg)
-![Publish](https://github.com/aardvark-community/Aardvark.Embree/workflows/Publish/badge.svg)
-[![NuGet](https://badgen.net/nuget/v/Aardvark.Embree)](https://www.nuget.org/packages/Aardvark.Embree/)
-[![NuGet](https://badgen.net/nuget/dt/Aardvark.Embree)](https://www.nuget.org/packages/Aardvark.Embree/)
+![Build](https://github.com/aardvark-community/Aardvark.Embree/workflows/Build/badge.svg)
+[![Nuget](https://img.shields.io/nuget/vpre/Aardvark.Embree)](https://www.nuget.org/packages/Aardvark.Embree/)
+[![Downloads](https://img.shields.io/nuget/dt/Aardvark.Embree)](https://www.nuget.org/packages/Aardvark.Embree/)
 
 Aardvark bindings for the Intel Embree ray tracing kernels.
