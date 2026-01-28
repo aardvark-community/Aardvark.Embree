@@ -7,23 +7,56 @@ namespace Aardvark.Embree;
 
 public unsafe partial class Scene
 {
-    // keep a strong ref so the delegate isn't GC'd while native code calls it
-    private static readonly RTCPointQueryFunction s_nearestCallback = NearestCallback;
+    /// <summary>
+    /// Thread-local storage for the current point query callback.
+    /// Used by instance geometries to access the callback for recursive queries.
+    /// </summary>
+    [ThreadStatic]
+    private static IntPtr t_currentPointQueryCallback;
 
+    /// <summary>
+    /// Gets the current point query callback for instance geometry recursion.
+    /// Internal use only - called by InstanceGeometry.InstancePointQueryCallback.
+    /// </summary>
+    internal static IntPtr GetCurrentPointQueryCallback() => t_currentPointQueryCallback;
+
+    /// <summary>
+    /// Result of a closest point query on the scene.
+    /// </summary>
     public readonly struct ClosestPointInfo
     {
+        /// <summary>Whether a valid point was found within the query radius</summary>
         public readonly bool IsValid;
+        /// <summary>The closest point on the geometry surface in world space</summary>
         public readonly V3f Point;
+        /// <summary>Barycentric UV coordinates on the primitive</summary>
         public readonly V2f UV;
+        /// <summary>Squared distance from query point to surface point</summary>
         public readonly float DistanceSquared;
+        /// <summary>Geometry ID of the closest primitive</summary>
         public readonly uint GeomID;
+        /// <summary>Primitive ID within the geometry</summary>
         public readonly uint PrimID;
 
+        /// <summary>
+        /// Creates a new closest point result.
+        /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public ClosestPointInfo(bool isValid, in V3f p, in V2f uv, float d2, uint gid, uint pid)
             => (IsValid, Point, UV, DistanceSquared, GeomID, PrimID) = (isValid, p, uv, d2, gid, pid);
     }
 
+    /// <summary>
+    /// Finds the closest point on any geometry in the scene to a query point.
+    /// </summary>
+    /// <param name="queryPoint">The query point in world space</param>
+    /// <param name="maxRadius">Maximum search radius (default: infinite)</param>
+    /// <returns>Information about the closest point, or invalid result if no point found within radius</returns>
+    /// <remarks>
+    /// LIMITATION: Embree 4's RTC_GEOMETRY_TYPE_INSTANCE does not support rtcSetGeometryPointQueryFunction.
+    /// Point queries will NOT traverse instance geometries - only direct geometries are queried.
+    /// This is a known limitation of the Embree API. Ray queries (Intersect/Occluded) work correctly with instances.
+    /// </remarks>
     public ClosestPointInfo GetClosestPoint(V3f queryPoint, float maxRadius = float.PositiveInfinity)
     {
         // prepare query (time=0)
@@ -31,28 +64,45 @@ public unsafe partial class Scene
         {
             p = queryPoint,
             time = 0f,
-            radius = float.IsInfinity(maxRadius) ? 1e30f : maxRadius
+            radius = float.IsPositiveInfinity(maxRadius) ? 1e30f : maxRadius
         };
 
         // NOTE: rtcInitPointQueryContext is an inline method -> do manually
-        var ctx = new RTCPointQueryContext()
-        {
-            instID = RTC_INVALID_GEOMETRY_ID,   // need to be initialized with RTC_INVALID_GEOMETRY_ID
-            instStackSize = 0                   // 
-            //inst2world = M44f.Identity,       // NOTE: inline rtcInitPointQueryContext does not set this
-            //world2inst = M44f.Identity,       // NOTE: inline rtcInitPointQueryContext does not set this
-        };
+        RTCPointQueryContext* ctx = stackalloc RTCPointQueryContext[1];
+        ctx->instID = RTC_INVALID_GEOMETRY_ID;   // need to be initialized with RTC_INVALID_GEOMETRY_ID
+        ctx->instStackSize = 0;
+        // NOTE: inline rtcInitPointQueryContext does not initialize matrices
+        // ctx->inst2world and ctx->world2inst are undefined when instStackSize == 0
 
         var state = new NearestState(this, queryPoint);
         var gch = GCHandle.Alloc(state, GCHandleType.Normal);
 
-        // stackalloc ensures 16B alignment of RTCPointQuery on x64
-        RTCPointQuery* pq = stackalloc RTCPointQuery[1];
-        *pq = q;
+        // Create callback delegate and pin it to prevent GC during native call
+        var callback = new RTCPointQueryFunction(NearestCallback);
+        var callbackHandle = GCHandle.Alloc(callback, GCHandleType.Normal);
 
-        EmbreeAPI.rtcPointQuery(Handle, pq, ctx, s_nearestCallback, (IntPtr)gch);
+        try
+        {
+            // Get stable function pointer from the pinned delegate
+            var callbackPtr = Marshal.GetFunctionPointerForDelegate(callback);
 
-        return state.ToResult();
+            // Store callback in thread-local storage for instance geometries to access
+            t_currentPointQueryCallback = callbackPtr;
+
+            // stackalloc ensures 16B alignment of RTCPointQuery on x64
+            RTCPointQuery* pq = stackalloc RTCPointQuery[1];
+            *pq = q;
+
+            EmbreeAPI.rtcPointQuery(Handle, pq, ctx, callbackPtr, (IntPtr)gch);
+
+            return state.ToResult();
+        }
+        finally
+        {
+            t_currentPointQueryCallback = IntPtr.Zero;
+            callbackHandle.Free();
+            gch.Free();
+        }
     }
 
     // --------- per-query scratch ------------
@@ -86,35 +136,35 @@ public unsafe partial class Scene
         // get buffers (we assume triangles: indices=int32 triplets, vertices=float3)
         int* idx = (int*)EmbreeAPI.rtcGetGeometryBufferData(g, RTCBufferType.Index, 0);
         float* vtx = (float*)EmbreeAPI.rtcGetGeometryBufferData(g, RTCBufferType.Vertex, 0);
-        if (idx == null || vtx == null) return false;
+        if ((IntPtr)idx == IntPtr.Zero || (IntPtr)vtx == IntPtr.Zero) return false;
 
         // triangle indices for this prim
-        //int* iPtr = idx + a.primID * 3;
-        //int i0 = *iPtr++;
-        //int i1 = *iPtr++;
-        //int i2 = *iPtr;
         int i0 = idx[a.primID * 3 + 0];
         int i1 = idx[a.primID * 3 + 1];
         int i2 = idx[a.primID * 3 + 2];
 
-        // load positions (object space == world space unless you use instancing)
-        //V3f p0 = *(V3f*)(vtx + i0 * 3);
-        //V3f p1 = *(V3f*)(vtx + i1 * 3);
-        //V3f p2 = *(V3f*)(vtx + i2 * 3);
-        var triangle = new Triangle3f(
-            new V3f(vtx[i0 * 3 + 0], vtx[i0 * 3 + 1], vtx[i0 * 3 + 2]),
-            new V3f(vtx[i1 * 3 + 0], vtx[i1 * 3 + 1], vtx[i1 * 3 + 2]),
-            new V3f(vtx[i2 * 3 + 0], vtx[i2 * 3 + 1], vtx[i2 * 3 + 2])
-            );
+        // Load triangle vertices (in object space)
+        var p0 = new V3f(vtx[i0 * 3 + 0], vtx[i0 * 3 + 1], vtx[i0 * 3 + 2]);
+        var p1 = new V3f(vtx[i1 * 3 + 0], vtx[i1 * 3 + 1], vtx[i1 * 3 + 2]);
+        var p2 = new V3f(vtx[i2 * 3 + 0], vtx[i2 * 3 + 1], vtx[i2 * 3 + 2]);
 
-        // TODO (optional): if you support Embree instancing, transform p0/p1/p2
-        // by the top-of-stack inst2world matrix in a.context.
-        // (We keep v1 minimal here; scenes without instances work out of the box.)
+        // Transform to world space if inside instance geometry
+        // Per Embree documentation: context->instStackSize > 0 means we're inside an instance
+        // and context->inst2world contains the accumulated transform from object to world space
+        var ctx = (RTCPointQueryContext*)a.context;
+        if (ctx->instStackSize > 0)
+        {
+            // Apply instance transformation matrix
+            var inst2world = ctx->inst2world;
+            p0 = inst2world.TransformPos(p0);
+            p1 = inst2world.TransformPos(p1);
+            p2 = inst2world.TransformPos(p2);
+        }
+
+        var triangle = new Triangle3f(p0, p1, p2);
 
         // closest point on triangle and squared distance
         V3f cp = ClosestPointOnTriangle(st.Query, triangle.P0, triangle.P1, triangle.P2, out float d2, out float u, out float v);
-        //V3f cp = triangle.GetClosestPointOn(st.Query);
-        //var d2 = (cp - st.Query).LengthSquared;
 
         if (d2 < st.BestDistSq)
         {

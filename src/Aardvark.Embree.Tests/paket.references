@@ -1,0 +1,7 @@
+Aardvark.Base
+Aardvark.SceneGraph
+Aardvark.PixImage.ImageSharp
+xunit
+xunit.runner.visualstudio
+coverlet.collector
+Microsoft.NET.Test.Sdk

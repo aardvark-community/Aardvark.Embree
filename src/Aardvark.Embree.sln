@@ -5,8 +5,6 @@ VisualStudioVersion = 17.14.36511.14 d17.14
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aardvark.Embree", "Aardvark.Embree\Aardvark.Embree.csproj", "{7FB423EC-EF32-439D-AFEE-03B5833871E4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test", "Test\Test.csproj", "{7D8C4D56-3F33-4A81-A768-31B295AB6173}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "_", "_", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
 	ProjectSection(SolutionItems) = preProject
 		..\.gitignore = ..\.gitignore
@@ -20,6 +18,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "_", "_", "{02EA681E-C7D8-13
 		..\RELEASE_NOTES.md = ..\RELEASE_NOTES.md
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aardvark.Embree.Tests", "Aardvark.Embree.Tests\Aardvark.Embree.Tests.csproj", "{D1883E0F-927C-4381-9549-E3ADE9A6BE26}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aardvark.Embree.Examples", "Aardvark.Embree.Examples\Aardvark.Embree.Examples.csproj", "{EA4E9C0F-F0DF-4ACD-A201-9D1BA0263C9F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -30,10 +32,14 @@ Global
 		{7FB423EC-EF32-439D-AFEE-03B5833871E4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7FB423EC-EF32-439D-AFEE-03B5833871E4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7FB423EC-EF32-439D-AFEE-03B5833871E4}.Release|Any CPU.Build.0 = Release|Any CPU
-		{7D8C4D56-3F33-4A81-A768-31B295AB6173}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{7D8C4D56-3F33-4A81-A768-31B295AB6173}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{7D8C4D56-3F33-4A81-A768-31B295AB6173}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{7D8C4D56-3F33-4A81-A768-31B295AB6173}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D1883E0F-927C-4381-9549-E3ADE9A6BE26}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D1883E0F-927C-4381-9549-E3ADE9A6BE26}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D1883E0F-927C-4381-9549-E3ADE9A6BE26}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D1883E0F-927C-4381-9549-E3ADE9A6BE26}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EA4E9C0F-F0DF-4ACD-A201-9D1BA0263C9F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EA4E9C0F-F0DF-4ACD-A201-9D1BA0263C9F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EA4E9C0F-F0DF-4ACD-A201-9D1BA0263C9F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EA4E9C0F-F0DF-4ACD-A201-9D1BA0263C9F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

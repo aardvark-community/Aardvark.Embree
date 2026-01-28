@@ -1,0 +1,44 @@
+name: macOS
+
+on:
+  push:
+    paths-ignore:
+    - 'README.md'
+    - 'docs/'
+  pull_request:
+    paths-ignore:
+    - 'README.md'
+    - 'docs/'
+
+jobs:
+  build:
+
+    runs-on: macos-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Install Dotnet
+      uses: actions/setup-dotnet@v4
+      with:
+        global-json-file: global.json
+    - name: Download Embree 4 for macOS
+      run: |
+        mkdir -p lib/Native/Aardvark.Embree/osx/AMD64
+        cd lib/Native/Aardvark.Embree/osx/AMD64
+        # Download Embree 4.4.0 for macOS
+        curl -L -o embree.zip https://github.com/embree/embree/releases/download/v4.4.0/embree-4.4.0.x86_64.macosx.zip
+        unzip -q embree.zip
+        # Copy the required dylib files
+        cp embree-4.4.0.x86_64.macosx/lib/libembree4.4.dylib ./libembree4.4.dylib
+        cp embree-4.4.0.x86_64.macosx/lib/libtbb.12.11.dylib ./libtbb.12.11.dylib
+        # Clean up
+        rm -rf embree-4.4.0.x86_64.macosx embree.zip
+        ls -la
+    - name: Restore Tools
+      run: dotnet tool restore
+    - name: Restore Dependencies
+      run: dotnet paket restore
+    - name: Build
+      run: dotnet build src/Aardvark.Embree.sln --configuration Release
+    - name: Test
+      run: dotnet test src/Aardvark.Embree.sln --no-build --configuration Release --logger "console;verbosity=detailed"

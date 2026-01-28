@@ -14,3 +14,31 @@ bin
 .vscode
 src/.vs
 **/.idea
+
+# Test artifacts
+*.log
+TestResults/
+**/TestResults/
+
+# Temporary files
+tmp/
+nul
+*.zip
+nupkg/
+
+# Debugging artifacts
+test_output*.txt
+test_*.txt
+debug_*.cs
+test_*.csx
+*.exe
+*.obj
+
+# Root-level DLL copies (duplicates from lib/Native/)
+embree4.dll
+tbb12.dll
+tbbmalloc.dll
+
+
+.boss/
+.claude/settings.local.json

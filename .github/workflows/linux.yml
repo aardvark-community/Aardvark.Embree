@@ -1,0 +1,31 @@
+name: Linux
+
+on:
+  push:
+    paths-ignore:
+    - 'README.md'
+    - 'docs/'
+  pull_request:
+    paths-ignore:
+    - 'README.md'
+    - 'docs/'
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Install Dotnet
+      uses: actions/setup-dotnet@v4
+      with:
+        global-json-file: global.json
+    - name: Restore Tools
+      run: dotnet tool restore
+    - name: Restore Dependencies
+      run: dotnet paket restore
+    - name: Build
+      run: dotnet build src/Aardvark.Embree.sln --configuration Release
+    - name: Test
+      run: dotnet test src/Aardvark.Embree.sln --no-build --configuration Release --logger "console;verbosity=detailed"

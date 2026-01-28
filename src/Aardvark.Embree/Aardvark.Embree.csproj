@@ -3,14 +3,26 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <LangVersion>12</LangVersion>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <PackageId>Aardvark.Embree</PackageId>
+    <Version>0.4.0</Version>
+    <Authors>Aardvark Platform Team</Authors>
+    <Company>Aardvark Platform</Company>
+    <Description>.NET bindings for Intel Embree 4 ray tracing kernels. Provides high-performance ray-scene intersection with cross-platform native libraries included (Windows, Linux, macOS).</Description>
+    <PackageTags>embree;raytracing;ray-tracing;rendering;3d;graphics;native;interop;bvh;intersection</PackageTags>
+    <PackageProjectUrl>https://github.com/aardvark-community/aardvark.embree</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/aardvark-community/aardvark.embree</RepositoryUrl>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <OutputPath>..\..\bin\Debug</OutputPath>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <PackageOutputPath>..\..\bin\packages</PackageOutputPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <OutputPath>..\..\bin\Release</OutputPath>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <PackageOutputPath>..\..\bin\packages</PackageOutputPath>
   </PropertyGroup>
   <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>

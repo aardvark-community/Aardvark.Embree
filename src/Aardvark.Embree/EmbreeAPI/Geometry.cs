@@ -8,258 +8,356 @@ public partial class EmbreeAPI
     /// <summary>
     /// Creates a new geometry of specified type.
     /// </summary>
-    [DllImport("embree3")]
+    [DllImport("embree4")]
     public static extern IntPtr rtcNewGeometry(IntPtr device, RTCGeometryType type);
 
     /// <summary>
-    /// Retains the geometry (increments the reference count). 
+    /// Retains the geometry (increments the reference count).
     /// </summary>
-    [DllImport("embree3")]
+    [DllImport("embree4")]
     public static extern void rtcRetainGeometry(IntPtr geometry);
 
     /// <summary>
-    /// Releases the geometry (decrements the reference count) 
+    /// Releases the geometry (decrements the reference count)
     /// </summary>
-    [DllImport("embree3")]
+    [DllImport("embree4")]
     public static extern void rtcReleaseGeometry(IntPtr geometry);
 
     /// <summary>
     /// Commits the geometry.
     /// </summary>
-    [DllImport("embree3")]
+    [DllImport("embree4")]
     public static extern void rtcCommitGeometry(IntPtr geometry);
 
 
     /// <summary>
     /// Enables the geometry.
     /// </summary>
-    [DllImport("embree3")]
+    [DllImport("embree4")]
     public static extern void rtcEnableGeometry(IntPtr geometry);
 
     /// <summary>
-    /// Disables the geometry. 
+    /// Disables the geometry.
     /// </summary>
-    [DllImport("embree3")]
+    [DllImport("embree4")]
     public static extern void rtcDisableGeometry(IntPtr geometry);
 
 
     /// <summary>
-		/// Sets the number of motion blur time steps of the geometry. 
+		/// Sets the number of motion blur time steps of the geometry.
 		/// </summary>
-    [DllImport("embree3")]
+    [DllImport("embree4")]
     public static extern void rtcSetGeometryTimeStepCount(IntPtr geometry, uint timeStepCount);
 
     /// <summary>
-		/// Sets the motion blur time range of the geometry. 
+		/// Sets the motion blur time range of the geometry.
 		/// </summary>
-    [DllImport("embree3")]
+    [DllImport("embree4")]
     public static extern void rtcSetGeometryTimeRange(IntPtr geometry, float startTime, float endTime);
 
     /// <summary>
-		/// Sets the number of vertex attributes of the geometry. 
+		/// Sets the number of vertex attributes of the geometry.
 		/// </summary>
-    [DllImport("embree3")]
+    [DllImport("embree4")]
     public static extern void rtcSetGeometryVertexAttributeCount(IntPtr geometry, uint vertexAttributeCount);
 
     /// <summary>
-		/// Sets the ray mask of the geometry. 
+		/// Sets the ray mask of the geometry.
 		/// </summary>
-    [DllImport("embree3")]
+    [DllImport("embree4")]
     public static extern void rtcSetGeometryMask(IntPtr geometry, uint mask);
 
     /// <summary>
-		/// Sets the build quality of the geometry. 
+		/// Sets the build quality of the geometry.
 		/// </summary>
-    [DllImport("embree3")]
+    [DllImport("embree4")]
     public static extern void rtcSetGeometryBuildQuality(IntPtr geometry, RTCBuildQuality quality);
 
     /// <summary>
-		/// Sets the maximal curve or point radius scale allowed by min-width feature. 
+		/// Sets the maximal curve or point radius scale allowed by min-width feature.
 		/// </summary>
-    [DllImport("embree3")]
+    [DllImport("embree4")]
     public static extern void rtcSetGeometryMaxRadiusScale(IntPtr geometry, float maxRadiusScale);
 
 
     /// <summary>
-		/// Sets a geometry buffer. 
+		/// Sets a geometry buffer.
 		/// </summary>
-    [DllImport("embree3")]
-    public static extern void rtcSetGeometryBuffer(IntPtr geometry, RTCBufferType type, uint slot, RTCFormat format, IntPtr buffer, ulong byteOffset, ulong byteStride, ulong itemCount); // TODO: nuint instead of ulong
+    [DllImport("embree4")]
+    public static extern void rtcSetGeometryBuffer(IntPtr geometry, RTCBufferType type, uint slot, RTCFormat format, IntPtr buffer, nuint byteOffset, nuint byteStride, nuint itemCount);
 
     /// <summary>
-		/// Sets a shared geometry buffer. 
+		/// Sets a shared geometry buffer.
 		/// </summary>
-    [DllImport("embree3")]
-    public static extern void rtcSetSharedGeometryBuffer(IntPtr geometry, RTCBufferType type, uint slot, RTCFormat format, IntPtr ptr, ulong byteOffset, ulong byteStride, ulong itemCount); // TODO: nuint instead of ulong
+    [DllImport("embree4")]
+    public static extern void rtcSetSharedGeometryBuffer(IntPtr geometry, RTCBufferType type, uint slot, RTCFormat format, IntPtr ptr, nuint byteOffset, nuint byteStride, nuint itemCount);
 
     /// <summary>
-		/// Creates and sets a new geometry buffer. 
+		/// Creates and sets a new geometry buffer.
 		/// </summary>
-    [DllImport("embree3")] 
-    public static extern IntPtr rtcSetNewGeometryBuffer(IntPtr geometry, RTCBufferType type, uint slot, RTCFormat format, ulong byteStride, ulong itemCount); // TODO: nuint instead of ulong
+    [DllImport("embree4")]
+    public static extern IntPtr rtcSetNewGeometryBuffer(IntPtr geometry, RTCBufferType type, uint slot, RTCFormat format, nuint byteStride, nuint itemCount);
 
     /// <summary>
-		/// Returns the pointer to the data of a buffer. 
+		/// Returns the pointer to the data of a buffer.
 		/// </summary>
-    [DllImport("embree3")]
+    [DllImport("embree4")]
     public static extern IntPtr rtcGetGeometryBufferData(IntPtr geometry, RTCBufferType type, uint slot);
-   
+
     /// <summary>
-		/// Updates a geometry buffer. 
+		/// Updates a geometry buffer.
 		/// </summary>
-    [DllImport("embree3")]
+    [DllImport("embree4")]
 		public static extern void rtcUpdateGeometryBuffer(IntPtr geometry, RTCBufferType type, uint slot);
 
 
     /// <summary>
-		/// Sets the intersection filter callback function of the geometry. 
+		/// Sets the intersection filter callback function of the geometry.
 		/// </summary>
-    [DllImport("embree3")]
+    [DllImport("embree4")]
 		public static extern void rtcSetGeometryIntersectFilterFunction(IntPtr geometry, IntPtr filter);
 
     /// <summary>
-		/// Sets the occlusion filter callback function of the geometry. 
+		/// Sets the occlusion filter callback function of the geometry.
 		/// </summary>
-    [DllImport("embree3")]
+    [DllImport("embree4")]
 		public static extern void rtcSetGeometryOccludedFilterFunction(IntPtr geometry, IntPtr filter);
 
     /// <summary>
-		/// Sets the user-defined data pointer of the geometry. 
+		/// Sets the user-defined data pointer of the geometry.
 		/// </summary>
-    [DllImport("embree3")]
+    [DllImport("embree4")]
 		public static extern void rtcSetGeometryUserData(IntPtr geometry, IntPtr ptr);
 
     /// <summary>
-		/// Gets the user-defined data pointer of the geometry. 
+		/// Gets the user-defined data pointer of the geometry.
 		/// </summary>
-    [DllImport("embree3")]
+    [DllImport("embree4")]
 		public static extern IntPtr rtcGetGeometryUserData(IntPtr geometry);
 
     /// <summary>
-		/// Set the point query callback function of a geometry. 
+		/// Set the point query callback function of a geometry.
 		/// </summary>
-    [DllImport("embree3")]
+    [DllImport("embree4")]
 		public static extern void rtcSetGeometryPointQueryFunction(IntPtr geometry, IntPtr pointQuery);
 
     /// <summary>
-		/// Sets the number of primitives of a user geometry. 
+		/// Sets the number of primitives of a user geometry.
 		/// </summary>
-    [DllImport("embree3")]
+    [DllImport("embree4")]
 		public static extern void rtcSetGeometryUserPrimitiveCount(IntPtr geometry, uint userPrimitiveCount);
 
     /// <summary>
-		/// Sets the bounding callback function to calculate bounding boxes for user primitives. 
+		/// Sets the bounding callback function to calculate bounding boxes for user primitives.
 		/// </summary>
-    [DllImport("embree3")]
+    [DllImport("embree4")]
 		public static extern void rtcSetGeometryBoundsFunction(IntPtr geometry, IntPtr bounds, IntPtr userPtr);
 
     /// <summary>
-		/// Set the intersect callback function of a user geometry. 
+		/// Set the intersect callback function of a user geometry.
 		/// </summary>
-    [DllImport("embree3")]
+    [DllImport("embree4")]
 		public static extern void rtcSetGeometryIntersectFunction(IntPtr geometry, IntPtr intersect);
 
     /// <summary>
-		/// Set the occlusion callback function of a user geometry. 
+		/// Set the occlusion callback function of a user geometry.
 		/// </summary>
-    [DllImport("embree3")]
+    [DllImport("embree4")]
 		public static extern void rtcSetGeometryOccludedFunction(IntPtr geometry, IntPtr occluded);
 
     /// <summary>
-		/// Invokes the intersection filter from the intersection callback function. 
+		/// Invokes the intersection filter from the intersection callback function (Embree 4).
 		/// </summary>
-    [DllImport("embree3")]
+    [DllImport("embree4")]
+		public static extern void rtcInvokeIntersectFilterFromGeometry(RTCIntersectFunctionNArguments args, RTCFilterFunctionNArguments filterArgs);
+
+    /// <summary>
+		/// Invokes the occlusion filter from the occlusion callback function (Embree 4).
+		/// </summary>
+    [DllImport("embree4")]
+		public static extern void rtcInvokeOccludedFilterFromGeometry(RTCOccludedFunctionNArguments args, RTCFilterFunctionNArguments filterArgs);
+
+    /// <summary>
+		/// Invokes the intersection filter (deprecated, use rtcInvokeIntersectFilterFromGeometry).
+		/// </summary>
+    [Obsolete("Use rtcInvokeIntersectFilterFromGeometry instead")]
+    [DllImport("embree4")]
 		public static extern void rtcFilterIntersection(RTCIntersectFunctionNArguments args, RTCFilterFunctionNArguments filterArgs);
 
     /// <summary>
-		/// Invokes the occlusion filter from the occlusion callback function. 
+		/// Invokes the occlusion filter (deprecated, use rtcInvokeOccludedFilterFromGeometry).
 		/// </summary>
-    [DllImport("embree3")]
+    [Obsolete("Use rtcInvokeOccludedFilterFromGeometry instead")]
+    [DllImport("embree4")]
 		public static extern void rtcFilterOcclusion(RTCOccludedFunctionNArguments args, RTCFilterFunctionNArguments filterArgs);
 
 
     /// <summary>
-		/// Sets the instanced scene of an instance geometry. 
+		/// Sets the instanced scene of an instance geometry.
 		/// </summary>
-    [DllImport("embree3")]
+    [DllImport("embree4")]
 		public static extern void rtcSetGeometryInstancedScene(IntPtr geometry, IntPtr scene);
 
     /// <summary>
-		/// Sets the transformation of an instance for the specified time step. 
+		/// Sets the transformation of an instance for the specified time step.
 		/// </summary>
-    [DllImport("embree3")]
+    [DllImport("embree4")]
 		public static extern void rtcSetGeometryTransform(IntPtr geometry, uint timeStep, RTCFormat format, IntPtr xfm);
 
     /// <summary>
-		/// Sets the transformation quaternion of an instance for the specified time step. 
+		/// Sets the transformation quaternion of an instance for the specified time step.
 		/// </summary>
-    [DllImport("embree3")]
+    [DllImport("embree4")]
 		public static extern void rtcSetGeometryTransformQuaternion(IntPtr geometry, uint timeStep, RTCQuaternionDecomposition qd);
 
     /// <summary>
-		/// Returns the interpolated transformation of an instance for the specified time. 
+		/// Returns the interpolated transformation of an instance for the specified time.
 		/// </summary>
-    [DllImport("embree3")]
+    [DllImport("embree4")]
 		public static extern void rtcGetGeometryTransform(IntPtr geometry, float time, RTCFormat format, IntPtr xfm);
 
 
     /// <summary>
-		/// Sets the uniform tessellation rate of the geometry. 
+		/// Sets the uniform tessellation rate of the geometry.
 		/// </summary>
-    [DllImport("embree3")]
+    [DllImport("embree4")]
 		public static extern void rtcSetGeometryTessellationRate(IntPtr geometry, float tessellationRate);
 
     /// <summary>
-		/// Sets the number of topologies of a subdivision surface. 
+		/// Sets the number of topologies of a subdivision surface.
 		/// </summary>
-    [DllImport("embree3")]
+    [DllImport("embree4")]
 		public static extern void rtcSetGeometryTopologyCount(IntPtr geometry, uint topologyCount);
 
     /// <summary>
-		/// Sets the subdivision interpolation mode. 
+		/// Sets the subdivision interpolation mode.
 		/// </summary>
-    [DllImport("embree3")]
+    [DllImport("embree4")]
 		public static extern void rtcSetGeometrySubdivisionMode(IntPtr geometry, uint topologyID, RTCSubdivisionMode mode);
 
     /// <summary>
-		/// Binds a vertex attribute to a topology of the geometry. 
+		/// Binds a vertex attribute to a topology of the geometry.
 		/// </summary>
-    [DllImport("embree3")]
+    [DllImport("embree4")]
 		public static extern void rtcSetGeometryVertexAttributeTopology(IntPtr geometry, uint vertexAttributeID, uint topologyID);
 
     /// <summary>
-		/// Sets the displacement callback function of a subdivision surface. 
+		/// Sets the displacement callback function of a subdivision surface.
 		/// </summary>
-    [DllImport("embree3")]
+    [DllImport("embree4")]
 		public static extern void rtcSetGeometryDisplacementFunction(IntPtr geometry, IntPtr displacement);
 
     /// <summary>
-		/// Returns the first half edge of a face. 
+		/// Returns the first half edge of a face.
 		/// </summary>
-    [DllImport("embree3")]
+    [DllImport("embree4")]
 		public static extern uint rtcGetGeometryFirstHalfEdge(IntPtr geometry, uint faceID);
 
     /// <summary>
-		/// Returns the face the half edge belongs to. 
+		/// Returns the face the half edge belongs to.
 		/// </summary>
-    [DllImport("embree3")]
+    [DllImport("embree4")]
 		public static extern uint rtcGetGeometryFace(IntPtr geometry, uint edgeID);
 
     /// <summary>
-		/// Returns next half edge. 
+		/// Returns next half edge.
 		/// </summary>
-    [DllImport("embree3")]
+    [DllImport("embree4")]
 		public static extern uint rtcGetGeometryNextHalfEdge(IntPtr geometry, uint edgeID);
 
     /// <summary>
-		/// Returns previous half edge. 
+		/// Returns previous half edge.
 		/// </summary>
-    [DllImport("embree3")]
+    [DllImport("embree4")]
 		public static extern uint rtcGetGeometryPreviousHalfEdge(IntPtr geometry, uint edgeID);
 
     /// <summary>
-		/// Returns opposite half edge. 
+		/// Returns opposite half edge.
 		/// </summary>
-    [DllImport("embree3")]
+    [DllImport("embree4")]
 		public static extern uint rtcGetGeometryOppositeHalfEdge(IntPtr geometry, uint topologyID, uint edgeID);
+
+    /// <summary>
+		/// Returns the interpolated vertex data for the specified interpolation coordinate.
+		/// </summary>
+    [DllImport("embree4")]
+		public static extern void rtcInterpolate(ref RTCInterpolateArguments args);
+
+    /// <summary>
+		/// Convenience method: Interpolates vertex data to some u/v location (no derivatives).
+		/// </summary>
+		public static void rtcInterpolate(IntPtr geometry, uint primID, float u, float v, RTCBufferType bufferType, uint bufferSlot, IntPtr P, uint valueCount)
+		{
+			var args = new RTCInterpolateArguments
+			{
+				geometry = geometry,
+				primID = primID,
+				u = u,
+				v = v,
+				bufferType = bufferType,
+				bufferSlot = bufferSlot,
+				P = P,
+				dPdu = IntPtr.Zero,
+				dPdv = IntPtr.Zero,
+				ddPdudu = IntPtr.Zero,
+				ddPdvdv = IntPtr.Zero,
+				ddPdudv = IntPtr.Zero,
+				valueCount = valueCount
+			};
+			rtcInterpolate(ref args);
+		}
+
+    /// <summary>
+		/// Convenience method: Interpolates vertex data to some u/v location and calculates first order derivatives.
+		/// </summary>
+		public static void rtcInterpolate(IntPtr geometry, uint primID, float u, float v, RTCBufferType bufferType, uint bufferSlot, IntPtr P, IntPtr dPdu, IntPtr dPdv, uint valueCount)
+		{
+			var args = new RTCInterpolateArguments
+			{
+				geometry = geometry,
+				primID = primID,
+				u = u,
+				v = v,
+				bufferType = bufferType,
+				bufferSlot = bufferSlot,
+				P = P,
+				dPdu = dPdu,
+				dPdv = dPdv,
+				ddPdudu = IntPtr.Zero,
+				ddPdvdv = IntPtr.Zero,
+				ddPdudv = IntPtr.Zero,
+				valueCount = valueCount
+			};
+			rtcInterpolate(ref args);
+		}
+
+    /// <summary>
+		/// Convenience method: Interpolates vertex data to some u/v location and calculates first and second order derivatives.
+		/// </summary>
+		public static void rtcInterpolate(IntPtr geometry, uint primID, float u, float v, RTCBufferType bufferType, uint bufferSlot, IntPtr P, IntPtr dPdu, IntPtr dPdv, IntPtr ddPdudu, IntPtr ddPdvdv, IntPtr ddPdudv, uint valueCount)
+		{
+			var args = new RTCInterpolateArguments
+			{
+				geometry = geometry,
+				primID = primID,
+				u = u,
+				v = v,
+				bufferType = bufferType,
+				bufferSlot = bufferSlot,
+				P = P,
+				dPdu = dPdu,
+				dPdv = dPdv,
+				ddPdudu = ddPdudu,
+				ddPdvdv = ddPdvdv,
+				ddPdudv = ddPdudv,
+				valueCount = valueCount
+			};
+			rtcInterpolate(ref args);
+		}
+
+    /// <summary>
+		/// Returns the interpolated vertex data for N values.
+		/// </summary>
+    [DllImport("embree4")]
+		public static extern void rtcInterpolateN(IntPtr geometry, IntPtr valid, IntPtr primIDs, IntPtr u, IntPtr v, uint N, RTCBufferType bufferType, uint bufferSlot, IntPtr P, IntPtr dPdu, IntPtr dPdv, uint valueCount);
 }
