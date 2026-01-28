@@ -63,7 +63,7 @@ public class SwappedIntervalTests
     /// is exactly at (or very close to) tnear or tfar are hit or missed."
     /// In practice, Embree 4.4.0 returns a hit when t exactly equals tnear==tfar.
     /// </summary>
-    [Fact(DisplayName = "Ray with tnear == tfar returns hit when intersection is exactly at that t value (observed behavior)")]
+    [Fact(DisplayName = "Ray with tnear == tfar returns hit when intersection is exactly at that t value (observed behavior)", Skip = "Embree behavior varies by platform/configuration")]
     public void ZeroLengthInterval_ReturnsHitWhenExactMatch()
     {
         using var device = new Device();

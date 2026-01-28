@@ -9,19 +9,14 @@
 
 ## API Coverage
 
-**70% of Embree 4.4.0 API (103 of 148 functions)**
-
 **Implemented:**
-- ✅ 100% of CPU-based ray tracing APIs (103 functions)
-- ✅ All geometry types: triangles, quads, curves (15 variants), points (3 variants), subdivision surfaces, grids, instances, user-defined
+- ✅ 100% of CPU-based ray tracing APIs
+- ✅ All geometry types: triangles, quads, curves, points, subdivision surfaces, grids, instances, user-defined
 - ✅ Motion blur, ray packets (SIMD), filter functions, displacement mapping, interpolation, collision detection
-- ✅ 1,102 tests passing
 
 **Not Implemented:**
-- ❌ GPU/SYCL APIs (45 functions, ~30% of total)
+- ❌ GPU/SYCL APIs
 - Requires Intel Arc GPU hardware + SYCL runtime + C++/SYCL interop
-
-See [`docs/EMBREE_4_COMPLETE_API.md`](docs/EMBREE_4_COMPLETE_API.md) for complete API reference.
 
 ## Install
 
@@ -33,7 +28,7 @@ dotnet add package Aardvark.Embree
 
 ### Prerequisites
 - .NET 8.0 SDK or later
-- Windows (x64), Linux (x64), or macOS (x64)
+- Windows (x64), Linux (x64), or macOS (x64/ARM64)
 
 ### Your First Ray Trace
 
@@ -706,11 +701,6 @@ for (int i = 0; i < rayOrigins.Count; i += batchSize)
 }
 ```
 
-**Performance gains:**
-- Intersect4: ~2-3x faster (SSE)
-- Intersect8: ~4-6x faster (AVX2)
-- Intersect16: ~8-12x faster (AVX-512, if supported)
-
 ### Dynamic Scenes for Animated Geometry
 
 Update geometry efficiently without rebuilding the entire BVH:
@@ -877,6 +867,7 @@ Zero allocation, zero copy, direct CPU cache access.
 | Windows  | x64          | embree4.dll, tbb12.dll |
 | Linux    | x64          | libembree4.so.4, libtbb.so.12 |
 | macOS    | x64          | libembree4.4.dylib, libtbb.12.dylib |
+| macOS    | ARM64 (Apple Silicon) | libembree4.4.dylib, libtbb.12.dylib |
 
 Native libraries included in NuGet package.
 

@@ -1,6 +1,7 @@
 using Aardvark.Base;
 using Xunit;
 using System;
+using System.Runtime.InteropServices;
 
 namespace Aardvark.Embree.Tests;
 

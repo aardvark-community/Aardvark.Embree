@@ -1,5 +1,6 @@
 using Aardvark.Base;
 using System;
+using System.Runtime.InteropServices;
 using Xunit;
 
 namespace Aardvark.Embree.Tests.EdgeCases;

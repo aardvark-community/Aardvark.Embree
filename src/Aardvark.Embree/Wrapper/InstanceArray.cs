@@ -11,6 +11,7 @@ namespace Aardvark.Embree;
 /// </summary>
 public class InstanceArray : EmbreeGeometry
 {
+    private Scene[] m_sceneObjects;  // Strong references to prevent GC during InstanceArray lifetime
     private IntPtr[] m_scenes;
     private IntPtr m_transformBuffer;
     private IntPtr m_indexBuffer;
@@ -55,6 +56,7 @@ public class InstanceArray : EmbreeGeometry
             throw new ArgumentException("Instance count must be greater than zero", nameof(instanceCount));
 
         m_instanceCount = instanceCount;
+        m_sceneObjects = new[] { scene };  // Keep strong reference to prevent GC
         m_scenes = new[] { scene.Handle };
 
         // Set the instanced scene
@@ -89,6 +91,7 @@ public class InstanceArray : EmbreeGeometry
             throw new ArgumentException("Instance count must be greater than zero", nameof(instanceCount));
 
         m_instanceCount = instanceCount;
+        m_sceneObjects = scenes.ToArray();  // Keep strong references to prevent GC
         m_scenes = scenes.Select(s => s.Handle).ToArray();
 
         // Set multiple instanced scenes
@@ -333,11 +336,18 @@ public class InstanceArray : EmbreeGeometry
 
     /// <summary>
     /// Sets the transformation for a specific instance at a specific time step.
-    /// Note: For large numbers of instances, using SetTransformBuffer is more efficient.
     /// </summary>
+    /// <remarks>
+    /// WARNING: rtcSetInstanceTransform is NOT supported for InstanceArray geometry in Embree 4.
+    /// This method only works for single Instance geometry (RTCGeometryType.Instance).
+    /// For InstanceArray, use SetTransformBuffer to set all transforms at once.
+    /// Calling this method on InstanceArray will generate Embree warnings and may cause
+    /// crashes during cleanup on some platforms (particularly Linux).
+    /// </remarks>
     /// <param name="instanceIndex">Index of the instance</param>
     /// <param name="transform">Transformation to set</param>
     /// <param name="timeStep">Time step index</param>
+    [Obsolete("rtcSetInstanceTransform is not supported for InstanceArray in Embree 4. Use SetTransformBuffer instead.")]
     public void SetInstanceTransform(uint instanceIndex, Affine3f transform, uint timeStep = 0)
     {
         ThrowIfDisposed();
@@ -404,6 +414,7 @@ public class InstanceArray : EmbreeGeometry
             m_transformBuffer = IntPtr.Zero;
             m_indexBuffer = IntPtr.Zero;
             m_scenes = null;
+            m_sceneObjects = null;  // Clear strong references (we don't own the scenes)
         }
         base.Dispose(disposing);
     }
