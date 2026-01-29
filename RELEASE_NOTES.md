@@ -1,3 +1,6 @@
+### 0.4.0
+- release version 0.4.0
+
 ### 0.4.0-prerelease0001
 - upgraded from Embree 3.x to Embree 4.4.0
 - added full API support
