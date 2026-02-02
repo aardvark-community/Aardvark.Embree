@@ -1,4 +1,4 @@
-# CODEX_REVIEW.md
+ï»¿# CODEX_REVIEW.md
 
 Review date: 2026-02-02
 Scope: Full repository review (code, tests, docs, build/package metadata). No tests were executed.
@@ -47,16 +47,16 @@ The core wrapper design is solid and the test surface is extensive, but there ar
 - Evidence: direct buffer reads with hard-coded triangle interpretation.
 - Files:
   - `src/Aardvark.Embree/Wrapper/Scene.ClosestPoint.cs:136-158`
-- Recommendation: either restrict `GetClosestPoint` to triangle geometries only (and validate geometry type), or implement per-geometry handlers using Embree’s interpolation APIs and correct buffer formats.
+- Recommendation: either restrict `GetClosestPoint` to triangle geometries only (and validate geometry type), or implement per-geometry handlers using Embreeâ€™s interpolation APIs and correct buffer formats.
 
 ### Medium
-6) InstanceArray transform buffers don’t validate time step usage
+6) InstanceArray transform buffers donâ€™t validate time step usage
 - Risk: `SetTransformBuffer(..., timeStep > 0)` can be called without first setting `TimeStepCount`/`SetupMotionBlur`, which can lead to Embree errors or undefined behavior.
 - Files:
   - `src/Aardvark.Embree/Wrapper/InstanceArray.cs:199`, `src/Aardvark.Embree/Wrapper/InstanceArray.cs:247`
 - Recommendation: validate `timeStep < TimeStepCount` and/or call `rtcSetGeometryTimeStepCount` automatically when timeStep > 0.
 
-7) Device creation error path doesn’t guard for null handle
+7) Device creation error path doesnâ€™t guard for null handle
 - Risk: if `rtcNewDevice` fails and returns `IntPtr.Zero`, subsequent `rtcGetDeviceError` calls may be undefined or crash (depends on Embree behavior).
 - Files:
   - `src/Aardvark.Embree/Wrapper/Device.cs:101` (rtcNewDevice call)
@@ -71,7 +71,7 @@ The core wrapper design is solid and the test surface is extensive, but there ar
 - Recommendation: add `docs/DEBUGGING_METHODOLOGY.md` or update references to the actual location.
 
 ### Low
-9) Collision/point query helpers don’t check disposed state
+9) Collision/point query helpers donâ€™t check disposed state
 - Risk: calling on disposed scenes could throw later or crash in native code. This is a usability issue rather than a logic error.
 - Files:
   - `src/Aardvark.Embree/Wrapper/Scene.Collide.cs:34`, `src/Aardvark.Embree/Wrapper/Collision.cs:32`
@@ -86,4 +86,7 @@ The core wrapper design is solid and the test surface is extensive, but there ar
   - triangle-only GetClosestPoint behavior (or added support for other geometry types)
 
 ## Tests
-- Not run (no tests were executed during this review).
+- Ran: dotnet tool restore, dotnet paket restore, dotnet test src/Aardvark.Embree.sln --configuration Release`r
+- Result: Passed 1121, Failed 0, Skipped 11, Total 1132 (Duration: ~5s)
+- Warnings: 2x CS0618 for InstanceArray.SetInstanceTransform in src/Aardvark.Embree.Tests/InstanceArrayTests.cs`r
+- Skipped: Several collision tests and a few direct PInvoke tests (as reported by xUnit output)
