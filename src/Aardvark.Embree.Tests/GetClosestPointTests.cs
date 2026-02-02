@@ -307,4 +307,22 @@ public class GetClosestPointTests
             Assert.True((result.UV.X + result.UV.Y) <= 1.01f, $"UV sum {result.UV.X + result.UV.Y} invalid for query {query}");
         }
     }
+
+    [Fact(DisplayName = "GetClosestPoint throws for non-triangle geometry")]
+    public void GetClosestPoint_NonTriangleGeometry_Throws()
+    {
+        using var device = new Device();
+        var vertices = new V3f[]
+        {
+            new(0, 0, 0), new(1, 0, 0), new(1, 1, 0), new(0, 1, 0)
+        };
+        var indices = new int[] { 0, 1, 2, 3 };
+
+        using var geometry = new QuadGeometry(device, vertices, indices, RTCBuildQuality.Low);
+        using var scene = new Scene(device, RTCBuildQuality.Low, false);
+        scene.AttachGeometry(geometry);
+        scene.Commit();
+
+        Assert.Throws<NotSupportedException>(() => scene.GetClosestPoint(new V3f(0.5f, 0.5f, 1f)));
+    }
 }

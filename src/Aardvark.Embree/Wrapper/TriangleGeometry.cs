@@ -117,6 +117,7 @@ public class TriangleGeometry : EmbreeGeometry
     private readonly EmbreeBuffer<int> m_indices;
     private readonly int m_vertexCount;
     private uint m_timeStepCount = 1;  // Track current time step count
+    private readonly System.Collections.Generic.List<EmbreeBuffer<V3f>> m_timeStepBuffers = new();
 
     /// <summary>
     /// Creates triangle geometry from vertex positions and triangle indices.
@@ -220,6 +221,8 @@ public class TriangleGeometry : EmbreeGeometry
     public unsafe void UpdateVertices(ReadOnlyMemory<V3f> vertices)
     {
         ThrowIfDisposed();
+        if (vertices.Length != m_vertexCount)
+            throw new ArgumentException($"Vertex count ({vertices.Length}) does not match original vertex count ({m_vertexCount})", nameof(vertices));
         var span = vertices.Span;
         var ptr = m_vertices.GetDataPointer();
         for (int i = 0; i < span.Length; i++)
@@ -242,6 +245,8 @@ public class TriangleGeometry : EmbreeGeometry
     public unsafe void UpdateVertices(ReadOnlySpan<V3f> vertices)
     {
         ThrowIfDisposed();
+        if (vertices.Length != m_vertexCount)
+            throw new ArgumentException($"Vertex count ({vertices.Length}) does not match original vertex count ({m_vertexCount})", nameof(vertices));
         var ptr = m_vertices.GetDataPointer();
         for (int i = 0; i < vertices.Length; i++)
         {
@@ -304,13 +309,27 @@ public class TriangleGeometry : EmbreeGeometry
             m_timeStepCount = totalTimeSteps;
         }
 
-        // Create a new buffer for this time step
-        var timeStepBuffer = EmbreeBuffer.Create(m_device, vertices);
+        // Update or create buffer for this time step
+        EmbreeBuffer<V3f> timeStepBuffer;
+        if (timeStep == 0)
+        {
+            UpdateVertices(vertices);
+            EmbreeAPI.rtcUpdateGeometryBuffer(Handle, RTCBufferType.Vertex, 0);
+            m_device.CheckError("TriangleGeometry.rtcUpdateGeometryBuffer(Vertex, timeStep=0)");
+            timeStepBuffer = m_vertices;
+        }
+        else
+        {
+            timeStepBuffer = GetOrCreateTimeStepBuffer(timeStep, vertices.Span);
+        }
 
-        // Set the vertex buffer for this time step
-        EmbreeAPI.rtcSetGeometryBuffer(Handle, RTCBufferType.Vertex, timeStep, RTCFormat.FLOAT3,
-            timeStepBuffer.Handle, 0, (nuint)(sizeof(float) * 3), (nuint)vertices.Length);
-        m_device.CheckError($"TriangleGeometry.rtcSetGeometryBuffer(Vertex, timeStep={timeStep})");
+        // Ensure vertex buffer is set for this time step (required when new buffers are created)
+        if (timeStep != 0)
+        {
+            EmbreeAPI.rtcSetGeometryBuffer(Handle, RTCBufferType.Vertex, timeStep, RTCFormat.FLOAT3,
+                timeStepBuffer.Handle, 0, (nuint)(sizeof(float) * 3), (nuint)vertices.Length);
+            m_device.CheckError($"TriangleGeometry.rtcSetGeometryBuffer(Vertex, timeStep={timeStep})");
+        }
 
         // Note: Vertex attributes don't need multiple time steps - motion blur interpolation
         // is handled through the vertex buffers. Setting vertex attribute for multiple time
@@ -356,13 +375,46 @@ public class TriangleGeometry : EmbreeGeometry
             m_timeStepCount = totalTimeSteps;
         }
 
-        // Create a new buffer for this time step (zero-copy from span)
-        var timeStepBuffer = EmbreeBuffer.Create(m_device, vertices);
+        // Update or create buffer for this time step
+        EmbreeBuffer<V3f> timeStepBuffer;
+        if (timeStep == 0)
+        {
+            UpdateVertices(vertices);
+            EmbreeAPI.rtcUpdateGeometryBuffer(Handle, RTCBufferType.Vertex, 0);
+            m_device.CheckError("TriangleGeometry.rtcUpdateGeometryBuffer(Vertex, timeStep=0)");
+            timeStepBuffer = m_vertices;
+        }
+        else
+        {
+            timeStepBuffer = GetOrCreateTimeStepBuffer(timeStep, vertices);
+        }
 
-        // Set the vertex buffer for this time step
-        EmbreeAPI.rtcSetGeometryBuffer(Handle, RTCBufferType.Vertex, timeStep, RTCFormat.FLOAT3,
-            timeStepBuffer.Handle, 0, (nuint)(sizeof(float) * 3), (nuint)vertices.Length);
-        m_device.CheckError($"TriangleGeometry.rtcSetGeometryBuffer(Vertex, timeStep={timeStep})");
+        // Ensure vertex buffer is set for this time step (required when new buffers are created)
+        if (timeStep != 0)
+        {
+            EmbreeAPI.rtcSetGeometryBuffer(Handle, RTCBufferType.Vertex, timeStep, RTCFormat.FLOAT3,
+                timeStepBuffer.Handle, 0, (nuint)(sizeof(float) * 3), (nuint)vertices.Length);
+            m_device.CheckError($"TriangleGeometry.rtcSetGeometryBuffer(Vertex, timeStep={timeStep})");
+        }
+    }
+
+    private EmbreeBuffer<V3f> GetOrCreateTimeStepBuffer(uint timeStep, ReadOnlySpan<V3f> vertices)
+    {
+        while (m_timeStepBuffers.Count <= timeStep)
+            m_timeStepBuffers.Add(null);
+
+        var existing = m_timeStepBuffers[(int)timeStep];
+        if (existing == null)
+        {
+            existing = EmbreeBuffer.Create(m_device, vertices);
+            m_timeStepBuffers[(int)timeStep] = existing;
+        }
+        else
+        {
+            existing.Update(vertices);
+        }
+
+        return existing;
     }
 
     /// <inheritdoc/>
@@ -370,6 +422,10 @@ public class TriangleGeometry : EmbreeGeometry
     {
         if (disposing)
         {
+            for (int i = 0; i < m_timeStepBuffers.Count; i++)
+            {
+                m_timeStepBuffers[i]?.Dispose();
+            }
             m_vertices.Dispose();
             m_indices.Dispose();
         }

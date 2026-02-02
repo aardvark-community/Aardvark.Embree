@@ -1,4 +1,5 @@
 using Aardvark.Base;
+using System;
 using Xunit;
 
 namespace Aardvark.Embree.Tests;
@@ -669,5 +670,146 @@ public class GeometryUpdateTests
         var hit = new RayHit();
         bool intersected = scene.Intersect(new V3f(0, 0, 1), new V3f(0, 0, 1), ref hit, 0.0f, float.MaxValue);
         Assert.True(intersected);
+    }
+
+    [Fact(DisplayName = "TriangleGeometry UpdateVertices throws on size mismatch")]
+    public void TriangleGeometry_UpdateVertices_SizeMismatch_Throws()
+    {
+        using var device = new Device();
+        var vertices = new V3f[] { new V3f(0, 0, 0), new V3f(1, 0, 0), new V3f(0, 1, 0) };
+        var indices = new int[] { 0, 1, 2 };
+        using var geom = new TriangleGeometry(device, vertices, indices, RTCBuildQuality.Low);
+
+        var tooMany = new V3f[] { new V3f(0, 0, 0), new V3f(1, 0, 0), new V3f(0, 1, 0), new V3f(0, 0, 1) };
+        Assert.Throws<ArgumentException>(() => geom.UpdateVertices(new System.ReadOnlyMemory<V3f>(tooMany)));
+        Assert.Throws<ArgumentException>(() => geom.UpdateVertices(new System.ReadOnlySpan<V3f>(tooMany)));
+    }
+
+    [Fact(DisplayName = "QuadGeometry UpdateVertices throws on size mismatch")]
+    public void QuadGeometry_UpdateVertices_SizeMismatch_Throws()
+    {
+        using var device = new Device();
+        var vertices = new V3f[] { new V3f(0, 0, 0), new V3f(1, 0, 0), new V3f(1, 1, 0), new V3f(0, 1, 0) };
+        var indices = new int[] { 0, 1, 2, 3 };
+        using var geom = new QuadGeometry(device, vertices, indices, RTCBuildQuality.Low);
+
+        var tooFew = new V3f[] { new V3f(0, 0, 0), new V3f(1, 0, 0), new V3f(1, 1, 0) };
+        Assert.Throws<ArgumentException>(() => geom.UpdateVertices(new System.ReadOnlyMemory<V3f>(tooFew)));
+        Assert.Throws<ArgumentException>(() => geom.UpdateVertices(new System.ReadOnlySpan<V3f>(tooFew)));
+    }
+
+    [Fact(DisplayName = "GridGeometry UpdateVertices throws on size mismatch")]
+    public void GridGeometry_UpdateVertices_SizeMismatch_Throws()
+    {
+        using var device = new Device();
+        var vertices = new V3f[]
+        {
+            new V3f(0, 0, 0),
+            new V3f(1, 0, 0),
+            new V3f(0, 1, 0),
+            new V3f(1, 1, 0)
+        };
+        var grids = new RTCGrid[]
+        {
+            new RTCGrid { startVertexID = 0, stride = 2, width = 2, height = 2 }
+        };
+        using var geom = new GridGeometry(device, vertices, grids, RTCBuildQuality.Low);
+
+        var tooMany = new V3f[]
+        {
+            new V3f(0, 0, 0),
+            new V3f(1, 0, 0),
+            new V3f(0, 1, 0),
+            new V3f(1, 1, 0),
+            new V3f(2, 2, 0)
+        };
+        Assert.Throws<ArgumentException>(() => geom.UpdateVertices(new System.ReadOnlyMemory<V3f>(tooMany)));
+        Assert.Throws<ArgumentException>(() => geom.UpdateVertices(new System.ReadOnlySpan<V3f>(tooMany)));
+    }
+
+    [Fact(DisplayName = "CurveGeometry UpdateControlPoints throws on size mismatch")]
+    public void CurveGeometry_UpdateControlPoints_SizeMismatch_Throws()
+    {
+        using var device = new Device();
+        var controlPoints = new CurveVertex[]
+        {
+            new CurveVertex(new V3f(0, 0, 0), 0.1f),
+            new CurveVertex(new V3f(1, 0, 0), 0.1f),
+            new CurveVertex(new V3f(2, 0, 0), 0.1f)
+        };
+        var indices = new uint[] { 0, 1 };
+        using var geom = new RoundLinearCurveGeometry(device, controlPoints, indices, RTCBuildQuality.Low);
+
+        var tooFew = new CurveVertex[]
+        {
+            new CurveVertex(new V3f(0, 0, 0), 0.1f),
+            new CurveVertex(new V3f(1, 0, 0), 0.1f)
+        };
+        Assert.Throws<ArgumentException>(() => geom.UpdateControlPoints(new System.ReadOnlyMemory<CurveVertex>(tooFew)));
+        Assert.Throws<ArgumentException>(() => geom.UpdateControlPoints(new System.ReadOnlySpan<CurveVertex>(tooFew)));
+    }
+
+    [Fact(DisplayName = "SpherePointGeometry UpdatePoints throws on size mismatch")]
+    public void SpherePointGeometry_UpdatePoints_SizeMismatch_Throws()
+    {
+        using var device = new Device();
+        var points = new Point[] { new Point(new V3f(0, 0, 0), 0.5f) };
+        using var geom = new SpherePointGeometry(device, points, RTCBuildQuality.Low);
+
+        var tooMany = new Point[]
+        {
+            new Point(new V3f(0, 0, 0), 0.5f),
+            new Point(new V3f(1, 0, 0), 0.5f)
+        };
+        Assert.Throws<ArgumentException>(() => geom.UpdatePoints(new System.ReadOnlyMemory<Point>(tooMany)));
+        Assert.Throws<ArgumentException>(() => geom.UpdatePoints(new System.ReadOnlySpan<Point>(tooMany)));
+    }
+
+    [Fact(DisplayName = "DiscPointGeometry UpdatePoints throws on size mismatch")]
+    public void DiscPointGeometry_UpdatePoints_SizeMismatch_Throws()
+    {
+        using var device = new Device();
+        var points = new Point[] { new Point(new V3f(0, 0, 0), 0.5f) };
+        using var geom = new DiscPointGeometry(device, points, RTCBuildQuality.Low);
+
+        var tooMany = new Point[]
+        {
+            new Point(new V3f(0, 0, 0), 0.5f),
+            new Point(new V3f(1, 0, 0), 0.5f)
+        };
+        Assert.Throws<ArgumentException>(() => geom.UpdatePoints(new System.ReadOnlyMemory<Point>(tooMany)));
+        Assert.Throws<ArgumentException>(() => geom.UpdatePoints(new System.ReadOnlySpan<Point>(tooMany)));
+    }
+
+    [Fact(DisplayName = "SphereGeometry UpdatePoints throws on size mismatch")]
+    public void SphereGeometry_UpdatePoints_SizeMismatch_Throws()
+    {
+        using var device = new Device();
+        var points = new Point[] { new Point(new V3f(0, 0, 0), 0.5f) };
+        using var geom = new SphereGeometry(device, points, RTCBuildQuality.Low);
+
+        var tooMany = new Point[]
+        {
+            new Point(new V3f(0, 0, 0), 0.5f),
+            new Point(new V3f(1, 0, 0), 0.5f)
+        };
+        Assert.Throws<ArgumentException>(() => geom.UpdatePoints(new System.ReadOnlyMemory<Point>(tooMany)));
+        Assert.Throws<ArgumentException>(() => geom.UpdatePoints(new System.ReadOnlySpan<Point>(tooMany)));
+    }
+
+    [Fact(DisplayName = "DiscGeometry UpdatePoints throws on size mismatch")]
+    public void DiscGeometry_UpdatePoints_SizeMismatch_Throws()
+    {
+        using var device = new Device();
+        var points = new Point[] { new Point(new V3f(0, 0, 0), 0.5f) };
+        using var geom = new DiscGeometry(device, points, RTCBuildQuality.Low);
+
+        var tooMany = new Point[]
+        {
+            new Point(new V3f(0, 0, 0), 0.5f),
+            new Point(new V3f(1, 0, 0), 0.5f)
+        };
+        Assert.Throws<ArgumentException>(() => geom.UpdatePoints(new System.ReadOnlyMemory<Point>(tooMany)));
+        Assert.Throws<ArgumentException>(() => geom.UpdatePoints(new System.ReadOnlySpan<Point>(tooMany)));
     }
 }

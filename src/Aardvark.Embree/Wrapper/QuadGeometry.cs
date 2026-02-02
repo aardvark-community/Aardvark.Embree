@@ -17,6 +17,7 @@ public class QuadGeometry : EmbreeGeometry
 {
     private readonly EmbreeBuffer<V3f> m_vertices;
     private readonly EmbreeBuffer<int> m_indices;
+    private readonly int m_vertexCount;
 
     /// <summary>
     /// Creates quad geometry from vertex positions and quad indices.
@@ -38,6 +39,7 @@ public class QuadGeometry : EmbreeGeometry
         if (quadIndices.Length % 4 != 0)
             throw new ArgumentException("Quad indices must be a multiple of 4", nameof(quadIndices));
 
+        m_vertexCount = vertices.Length;
         m_vertices = EmbreeBuffer.Create(device, vertices);
         m_indices = EmbreeBuffer.Create(device, quadIndices);
 
@@ -75,6 +77,7 @@ public class QuadGeometry : EmbreeGeometry
         EmbreeAPI.rtcRetainBuffer(indexBuffer.Handle);
         m_vertices = vertexBuffer;
         m_indices = indexBuffer;
+        m_vertexCount = vertexCount;
 
         // quad index buffer needs to be UINT4
         EmbreeAPI.rtcSetGeometryBuffer(Handle, RTCBufferType.Index, 0, RTCFormat.UINT4, m_indices.Handle, (nuint)indexOffset * sizeof(int), (nuint)(sizeof(int) * 4), (nuint)quadCount);
@@ -99,6 +102,8 @@ public class QuadGeometry : EmbreeGeometry
     public unsafe void UpdateVertices(ReadOnlyMemory<V3f> vertices)
     {
         ThrowIfDisposed();
+        if (vertices.Length != m_vertexCount)
+            throw new ArgumentException($"Vertex count ({vertices.Length}) does not match original vertex count ({m_vertexCount})", nameof(vertices));
         var span = vertices.Span;
         var ptr = m_vertices.GetDataPointer();
         for (int i = 0; i < span.Length; i++)
@@ -121,6 +126,8 @@ public class QuadGeometry : EmbreeGeometry
     public unsafe void UpdateVertices(ReadOnlySpan<V3f> vertices)
     {
         ThrowIfDisposed();
+        if (vertices.Length != m_vertexCount)
+            throw new ArgumentException($"Vertex count ({vertices.Length}) does not match original vertex count ({m_vertexCount})", nameof(vertices));
         var ptr = m_vertices.GetDataPointer();
         for (int i = 0; i < vertices.Length; i++)
         {

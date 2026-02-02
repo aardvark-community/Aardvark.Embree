@@ -52,6 +52,7 @@ public class GridGeometry : EmbreeGeometry
 {
     private readonly EmbreeBuffer<V3f> m_vertices;
     private readonly EmbreeBuffer<RTCGrid> m_grids;
+    private readonly int m_vertexCount;
 
     /// <summary>
     /// Creates grid geometry from vertex positions and grid definitions.
@@ -70,6 +71,7 @@ public class GridGeometry : EmbreeGeometry
     public GridGeometry(Device device, ReadOnlyMemory<V3f> vertices, ReadOnlyMemory<RTCGrid> grids, RTCBuildQuality quality)
         : base(device, RTCGeometryType.Grid, quality)
     {
+        m_vertexCount = vertices.Length;
         m_vertices = EmbreeBuffer.Create(device, vertices);
         m_grids = EmbreeBuffer.Create(device, grids);
 
@@ -121,6 +123,7 @@ public class GridGeometry : EmbreeGeometry
 
         m_vertices = vertexBuffer;
         m_grids = gridBuffer;
+        m_vertexCount = vertexCount;
 
         // Note: rtcSetGeometryPrimitiveCount does not exist in Embree 4.
         // The primitive count is determined by the buffer count parameter.
@@ -155,6 +158,8 @@ public class GridGeometry : EmbreeGeometry
     public unsafe void UpdateVertices(ReadOnlyMemory<V3f> vertices)
     {
         ThrowIfDisposed();
+        if (vertices.Length != m_vertexCount)
+            throw new ArgumentException($"Vertex count ({vertices.Length}) does not match original vertex count ({m_vertexCount})", nameof(vertices));
         var span = vertices.Span;
         var ptr = m_vertices.GetDataPointer();
         for (int i = 0; i < span.Length; i++)
@@ -177,6 +182,8 @@ public class GridGeometry : EmbreeGeometry
     public unsafe void UpdateVertices(ReadOnlySpan<V3f> vertices)
     {
         ThrowIfDisposed();
+        if (vertices.Length != m_vertexCount)
+            throw new ArgumentException($"Vertex count ({vertices.Length}) does not match original vertex count ({m_vertexCount})", nameof(vertices));
         var ptr = m_vertices.GetDataPointer();
         for (int i = 0; i < vertices.Length; i++)
         {

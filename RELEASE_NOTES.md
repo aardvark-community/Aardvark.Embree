@@ -1,3 +1,12 @@
+### 0.4.1
+- harden native callback lifetimes by retaining delegates on Device
+- validate update buffer sizes for geometry update APIs
+- fix motion blur and subdivision crease buffer ownership to prevent leaks
+- restrict GetClosestPoint to TriangleGeometry and clarify behavior
+- add tests covering new validation and error paths
+- add debugging methodology doc referenced by diagnostics
+- add explicit disposed checks for collision helpers
+
 ### 0.4.0
 - release version 0.4.0
 

@@ -32,6 +32,8 @@ public class Device : IDisposable
     private IntPtr m_handle;
     private bool m_disposed = false;
     private readonly object m_disposeLock = new();
+    private RTCMemoryMonitorFunction m_memoryMonitorCallback;
+    private RTCErrorFunction m_errorCallback;
 
     /// <summary>
     /// Throws ObjectDisposedException if this device has been disposed.
@@ -99,6 +101,8 @@ public class Device : IDisposable
 
         var config = $"threads={threadCount}";
         m_handle = EmbreeAPI.rtcNewDevice(config);
+        if (m_handle == IntPtr.Zero)
+            throw new InvalidOperationException($"Embree device creation failed (rtcNewDevice returned null). Config: '{config}'.");
         CheckError("Device creation");
     }
 
@@ -208,13 +212,14 @@ public class Device : IDisposable
 
         if (callback == null)
         {
+            m_memoryMonitorCallback = null;
             EmbreeAPI.rtcSetDeviceMemoryMonitorFunction(Handle, null, IntPtr.Zero);
         }
         else
         {
             // Wrap the user callback to match the native signature
-            RTCMemoryMonitorFunction nativeCallback = (ptr, bytes, post) => callback(bytes, post);
-            EmbreeAPI.rtcSetDeviceMemoryMonitorFunction(Handle, nativeCallback, IntPtr.Zero);
+            m_memoryMonitorCallback = (ptr, bytes, post) => callback(bytes, post);
+            EmbreeAPI.rtcSetDeviceMemoryMonitorFunction(Handle, m_memoryMonitorCallback, IntPtr.Zero);
         }
     }
 
@@ -249,13 +254,14 @@ public class Device : IDisposable
 
         if (callback == null)
         {
+            m_errorCallback = null;
             EmbreeAPI.rtcSetDeviceErrorFunction(Handle, null, IntPtr.Zero);
         }
         else
         {
             // Wrap the user callback to match the native signature
-            RTCErrorFunction nativeCallback = (userPtr, code, message) => callback(code, message);
-            EmbreeAPI.rtcSetDeviceErrorFunction(Handle, nativeCallback, IntPtr.Zero);
+            m_errorCallback = (userPtr, code, message) => callback(code, message);
+            EmbreeAPI.rtcSetDeviceErrorFunction(Handle, m_errorCallback, IntPtr.Zero);
         }
     }
 
@@ -348,6 +354,8 @@ public class Device : IDisposable
                 m_handle = IntPtr.Zero;
             }
 
+            m_memoryMonitorCallback = null;
+            m_errorCallback = null;
             m_disposed = true;
         }
     }

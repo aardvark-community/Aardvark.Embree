@@ -18,6 +18,10 @@ public class SubdivisionGeometry : EmbreeGeometry
     private readonly EmbreeBuffer<V3f> m_vertices;
     private readonly EmbreeBuffer<uint> m_indices;
     private readonly EmbreeBuffer<uint> m_faces;
+    private EmbreeBuffer<uint> m_edgeCreaseIndices;
+    private EmbreeBuffer<float> m_edgeCreaseWeights;
+    private EmbreeBuffer<uint> m_vertexCreaseIndices;
+    private EmbreeBuffer<float> m_vertexCreaseWeights;
     private RTCDisplacementFunctionN m_displacementFunc;
 
     /// <summary>
@@ -78,11 +82,13 @@ public class SubdivisionGeometry : EmbreeGeometry
         if (edgeCreaseIndices.Length / 2 != edgeCreaseWeights.Length)
             throw new ArgumentException("Edge crease indices must be pairs, and weights must match number of pairs");
 
-        var indexBuffer = EmbreeBuffer.Create(device, edgeCreaseIndices);
-        var weightBuffer = EmbreeBuffer.Create(device, edgeCreaseWeights);
+        m_edgeCreaseIndices?.Dispose();
+        m_edgeCreaseWeights?.Dispose();
+        m_edgeCreaseIndices = EmbreeBuffer.Create(device, edgeCreaseIndices);
+        m_edgeCreaseWeights = EmbreeBuffer.Create(device, edgeCreaseWeights);
 
-        EmbreeAPI.rtcSetGeometryBuffer(Handle, RTCBufferType.EdgeCreaseIndex, 0, RTCFormat.UINT2, indexBuffer.Handle, 0, (nuint)(sizeof(uint) * 2), (nuint)(edgeCreaseIndices.Length / 2));
-        EmbreeAPI.rtcSetGeometryBuffer(Handle, RTCBufferType.EdgeCreaseWeight, 0, RTCFormat.FLOAT, weightBuffer.Handle, 0, (nuint)sizeof(float), (nuint)edgeCreaseWeights.Length);
+        EmbreeAPI.rtcSetGeometryBuffer(Handle, RTCBufferType.EdgeCreaseIndex, 0, RTCFormat.UINT2, m_edgeCreaseIndices.Handle, 0, (nuint)(sizeof(uint) * 2), (nuint)(edgeCreaseIndices.Length / 2));
+        EmbreeAPI.rtcSetGeometryBuffer(Handle, RTCBufferType.EdgeCreaseWeight, 0, RTCFormat.FLOAT, m_edgeCreaseWeights.Handle, 0, (nuint)sizeof(float), (nuint)edgeCreaseWeights.Length);
 
         Commit();
     }
@@ -103,11 +109,13 @@ public class SubdivisionGeometry : EmbreeGeometry
         if (vertexCreaseIndices.Length != vertexCreaseWeights.Length)
             throw new ArgumentException("Vertex crease indices and weights must have same length");
 
-        var indexBuffer = EmbreeBuffer.Create(device, vertexCreaseIndices);
-        var weightBuffer = EmbreeBuffer.Create(device, vertexCreaseWeights);
+        m_vertexCreaseIndices?.Dispose();
+        m_vertexCreaseWeights?.Dispose();
+        m_vertexCreaseIndices = EmbreeBuffer.Create(device, vertexCreaseIndices);
+        m_vertexCreaseWeights = EmbreeBuffer.Create(device, vertexCreaseWeights);
 
-        EmbreeAPI.rtcSetGeometryBuffer(Handle, RTCBufferType.VertexCreaseIndex, 0, RTCFormat.UINT, indexBuffer.Handle, 0, (nuint)sizeof(uint), (nuint)vertexCreaseIndices.Length);
-        EmbreeAPI.rtcSetGeometryBuffer(Handle, RTCBufferType.VertexCreaseWeight, 0, RTCFormat.FLOAT, weightBuffer.Handle, 0, (nuint)sizeof(float), (nuint)vertexCreaseWeights.Length);
+        EmbreeAPI.rtcSetGeometryBuffer(Handle, RTCBufferType.VertexCreaseIndex, 0, RTCFormat.UINT, m_vertexCreaseIndices.Handle, 0, (nuint)sizeof(uint), (nuint)vertexCreaseIndices.Length);
+        EmbreeAPI.rtcSetGeometryBuffer(Handle, RTCBufferType.VertexCreaseWeight, 0, RTCFormat.FLOAT, m_vertexCreaseWeights.Handle, 0, (nuint)sizeof(float), (nuint)vertexCreaseWeights.Length);
 
         Commit();
     }
@@ -160,6 +168,10 @@ public class SubdivisionGeometry : EmbreeGeometry
             m_vertices.Dispose();
             m_indices.Dispose();
             m_faces.Dispose();
+            m_edgeCreaseIndices?.Dispose();
+            m_edgeCreaseWeights?.Dispose();
+            m_vertexCreaseIndices?.Dispose();
+            m_vertexCreaseWeights?.Dispose();
         }
         base.Dispose(disposing);
     }

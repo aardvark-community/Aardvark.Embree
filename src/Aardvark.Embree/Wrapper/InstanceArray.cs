@@ -204,6 +204,8 @@ public class InstanceArray : EmbreeGeometry
 
         if (transforms.Length != m_instanceCount)
             throw new ArgumentException($"Transform buffer size ({transforms.Length}) must match instance count ({m_instanceCount})", nameof(transforms));
+        if (timeStep >= m_timeStepCount)
+            throw new ArgumentOutOfRangeException(nameof(timeStep), $"Time step {timeStep} exceeds time step count {m_timeStepCount}. Call SetupMotionBlur first.");
 
         // Create or update transform buffer for this time step
         m_transformBuffer = EmbreeAPI.rtcSetNewGeometryBuffer(
@@ -249,6 +251,8 @@ public class InstanceArray : EmbreeGeometry
         ThrowIfDisposed();
         if (transforms.Length != m_instanceCount)
             throw new ArgumentException($"Transform buffer size ({transforms.Length}) must match instance count ({m_instanceCount})", nameof(transforms));
+        if (timeStep >= m_timeStepCount)
+            throw new ArgumentOutOfRangeException(nameof(timeStep), $"Time step {timeStep} exceeds time step count {m_timeStepCount}. Call SetupMotionBlur first.");
 
         // Create or update transform buffer for this time step
         m_transformBuffer = EmbreeAPI.rtcSetNewGeometryBuffer(
@@ -378,6 +382,8 @@ public class InstanceArray : EmbreeGeometry
         ThrowIfDisposed();
         if (transformPtr == null)
             throw new ArgumentNullException(nameof(transformPtr));
+        if (timeStep >= m_timeStepCount)
+            throw new ArgumentOutOfRangeException(nameof(timeStep), $"Time step {timeStep} exceeds time step count {m_timeStepCount}. Call SetupMotionBlur first.");
 
         EmbreeAPI.rtcSetSharedGeometryBuffer(
             Handle,

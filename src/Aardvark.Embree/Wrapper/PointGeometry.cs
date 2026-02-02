@@ -105,6 +105,7 @@ public abstract class PointGeometry : EmbreeGeometry
 public class SpherePointGeometry : PointGeometry
 {
     private readonly EmbreeBuffer<Point> m_points;
+    private readonly int m_pointCount;
 
     /// <summary>
     /// Creates sphere point geometry from a collection of points.
@@ -115,6 +116,7 @@ public class SpherePointGeometry : PointGeometry
     public SpherePointGeometry(Device device, ReadOnlyMemory<Point> points, RTCBuildQuality quality)
         : base(device, RTCGeometryType.SpherePoint, quality)
     {
+        m_pointCount = points.Length;
         m_points = EmbreeBuffer.Create(device, points);
 
         // Point vertex buffer (FLOAT4 = x, y, z, radius)
@@ -134,6 +136,9 @@ public class SpherePointGeometry : PointGeometry
     /// </remarks>
     public unsafe void UpdatePoints(ReadOnlyMemory<Point> points)
     {
+        ThrowIfDisposed();
+        if (points.Length != m_pointCount)
+            throw new ArgumentException($"Point count ({points.Length}) does not match original count ({m_pointCount})", nameof(points));
         var span = points.Span;
         var ptr = m_points.GetDataPointer();
         for (int i = 0; i < span.Length; i++)
@@ -152,6 +157,9 @@ public class SpherePointGeometry : PointGeometry
     /// </remarks>
     public unsafe void UpdatePoints(ReadOnlySpan<Point> points)
     {
+        ThrowIfDisposed();
+        if (points.Length != m_pointCount)
+            throw new ArgumentException($"Point count ({points.Length}) does not match original count ({m_pointCount})", nameof(points));
         var ptr = m_points.GetDataPointer();
         for (int i = 0; i < points.Length; i++)
         {
@@ -196,6 +204,7 @@ public class SpherePointGeometry : PointGeometry
 public class DiscPointGeometry : PointGeometry
 {
     private readonly EmbreeBuffer<Point> m_points;
+    private readonly int m_pointCount;
 
     /// <summary>
     /// Creates disc point geometry from a collection of points.
@@ -206,6 +215,7 @@ public class DiscPointGeometry : PointGeometry
     public DiscPointGeometry(Device device, ReadOnlyMemory<Point> points, RTCBuildQuality quality)
         : base(device, RTCGeometryType.DiscPoint, quality)
     {
+        m_pointCount = points.Length;
         m_points = EmbreeBuffer.Create(device, points);
 
         // Point vertex buffer (FLOAT4 = x, y, z, radius)
@@ -225,6 +235,9 @@ public class DiscPointGeometry : PointGeometry
     /// </remarks>
     public unsafe void UpdatePoints(ReadOnlyMemory<Point> points)
     {
+        ThrowIfDisposed();
+        if (points.Length != m_pointCount)
+            throw new ArgumentException($"Point count ({points.Length}) does not match original count ({m_pointCount})", nameof(points));
         var span = points.Span;
         var ptr = m_points.GetDataPointer();
         for (int i = 0; i < span.Length; i++)
@@ -243,6 +256,9 @@ public class DiscPointGeometry : PointGeometry
     /// </remarks>
     public unsafe void UpdatePoints(ReadOnlySpan<Point> points)
     {
+        ThrowIfDisposed();
+        if (points.Length != m_pointCount)
+            throw new ArgumentException($"Point count ({points.Length}) does not match original count ({m_pointCount})", nameof(points));
         var ptr = m_points.GetDataPointer();
         for (int i = 0; i < points.Length; i++)
         {

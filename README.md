@@ -131,6 +131,7 @@ bool intersected = scene.Intersect(
 );
 
 // GetClosestPoint finds the nearest surface point to a query location
+// Note: currently supported for TriangleGeometry attached directly to the scene (instances are not supported).
 var result = scene.GetClosestPoint(queryPoint: new V3f(0.5f, 0.5f, 1.0f));
 if (result.IsValid) {
     var point = result.Point;
@@ -370,6 +371,7 @@ geom.Commit();
 ### Dynamic Geometry Updates
 
 Update vertex data without reallocating buffers; BVH is refitted rather than rebuilt:
+Note: update methods require the same element count as the original buffers.
 
 ```csharp
 using var device = new Device();
@@ -792,7 +794,7 @@ Zero allocation, zero copy, direct CPU cache access.
 - `Intersect(V3f origin, V3f direction, ref RayHit hit, ...)` - Ray cast
 - `Intersect(V3f origin, V3f direction, ref RayHit hit, float minT, float maxT, float time, ...)` - Ray cast with motion blur time
 - `Occluded(V3f origin, V3f direction, ...)` - Shadow ray
-- `GetClosestPoint(V3f queryPoint, float maxRadius = float.MaxValue)` - Nearest point
+- `GetClosestPoint(V3f queryPoint, float maxRadius = float.MaxValue)` - Nearest point (TriangleGeometry only; instances not supported)
 - `Bounds` - Scene bounding box
 
 ### Geometry Types

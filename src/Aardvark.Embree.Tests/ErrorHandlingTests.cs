@@ -1,5 +1,6 @@
 using Aardvark.Base;
 using System;
+using System.Reflection;
 using Xunit;
 
 namespace Aardvark.Embree.Tests;
@@ -173,5 +174,81 @@ public class ErrorHandlingTests
         using var device = new Device(10000);
         Assert.NotEqual(IntPtr.Zero, device.Handle);
         // Actual operation failures would be caught by CheckError throwing exceptions
+    }
+
+    [Fact(DisplayName = "Device stores memory monitor callback and clears it")]
+    public void Device_SetMemoryMonitorFunction_StoresCallback()
+    {
+        using var device = new Device();
+        device.SetMemoryMonitorFunction((bytes, post) => true);
+
+        var field = typeof(Device).GetField("m_memoryMonitorCallback", BindingFlags.NonPublic | BindingFlags.Instance);
+        Assert.NotNull(field);
+        Assert.NotNull(field?.GetValue(device));
+
+        device.SetMemoryMonitorFunction(null);
+        Assert.Null(field?.GetValue(device));
+    }
+
+    [Fact(DisplayName = "Device stores error callback and clears it")]
+    public void Device_SetErrorFunction_StoresCallback()
+    {
+        using var device = new Device();
+        device.SetErrorFunction((error, message) => { });
+
+        var field = typeof(Device).GetField("m_errorCallback", BindingFlags.NonPublic | BindingFlags.Instance);
+        Assert.NotNull(field);
+        Assert.NotNull(field?.GetValue(device));
+
+        device.SetErrorFunction(null);
+        Assert.Null(field?.GetValue(device));
+    }
+
+    [Fact(DisplayName = "Scene Collide throws after dispose")]
+    public void SceneCollide_AfterDispose_Throws()
+    {
+        using var device = new Device();
+        var vertices = new V3f[]
+        {
+            new(0, 0, 0), new(1, 0, 0), new(0, 1, 0)
+        };
+        var indices = new int[] { 0, 1, 2 };
+
+        using var geometry = new TriangleGeometry(device, vertices, indices, RTCBuildQuality.Low);
+        var scene0 = new Scene(device, RTCBuildQuality.Low, false);
+        scene0.AttachGeometry(geometry);
+        scene0.Commit();
+
+        using var scene1 = new Scene(device, RTCBuildQuality.Low, false);
+        scene1.AttachGeometry(geometry);
+        scene1.Commit();
+
+        scene0.Dispose();
+
+        Assert.Throws<ObjectDisposedException>(() => scene0.Collide(scene1));
+        Assert.Throws<ObjectDisposedException>(() => scene0.Collide(scene1, _ => { }));
+    }
+
+    [Fact(DisplayName = "Collision PointQuery throws after dispose")]
+    public void CollisionPointQuery_AfterDispose_Throws()
+    {
+        using var device = new Device();
+        var vertices = new V3f[]
+        {
+            new(0, 0, 0), new(1, 0, 0), new(0, 1, 0)
+        };
+        var indices = new int[] { 0, 1, 2 };
+
+        using var geometry = new TriangleGeometry(device, vertices, indices, RTCBuildQuality.Low);
+        var scene = new Scene(device, RTCBuildQuality.Low, false);
+        scene.AttachGeometry(geometry);
+        scene.Commit();
+
+        scene.Dispose();
+
+        Assert.Throws<ObjectDisposedException>(() =>
+        {
+            Collision.PointQuery(scene, new V3f(0.1f, 0.1f, 1f), float.PositiveInfinity, (ref RTCPointQueryFunctionArguments args) => true, IntPtr.Zero);
+        });
     }
 }

@@ -10,6 +10,7 @@ namespace Aardvark.Embree;
 public class SphereGeometry : EmbreeGeometry
 {
     private readonly EmbreeBuffer<Point> m_points;
+    private readonly int m_pointCount;
 
     /// <summary>
     /// Creates sphere geometry.
@@ -20,6 +21,7 @@ public class SphereGeometry : EmbreeGeometry
     public SphereGeometry(Device device, ReadOnlyMemory<Point> points, RTCBuildQuality quality)
         : base(device, RTCGeometryType.SpherePoint, quality)
     {
+        m_pointCount = points.Length;
         m_points = EmbreeBuffer.Create(device, points);
 
         // Note: rtcSetGeometryPrimitiveCount does not exist in Embree 4.
@@ -52,6 +54,7 @@ public class SphereGeometry : EmbreeGeometry
         device.CheckError("SphereGeometry.rtcRetainBuffer");
 
         m_points = pointBuffer;
+        m_pointCount = count;
 
         // Note: rtcSetGeometryPrimitiveCount does not exist in Embree 4.
         // The primitive count is determined by the buffer count parameter.
@@ -87,6 +90,8 @@ public class SphereGeometry : EmbreeGeometry
     public unsafe void UpdatePoints(ReadOnlyMemory<Point> points)
     {
         ThrowIfDisposed();
+        if (points.Length != m_pointCount)
+            throw new ArgumentException($"Point count ({points.Length}) does not match original count ({m_pointCount})", nameof(points));
         var span = points.Span;
         var ptr = m_points.GetDataPointer();
         for (int i = 0; i < span.Length; i++)
@@ -102,6 +107,8 @@ public class SphereGeometry : EmbreeGeometry
     public unsafe void UpdatePoints(ReadOnlySpan<Point> points)
     {
         ThrowIfDisposed();
+        if (points.Length != m_pointCount)
+            throw new ArgumentException($"Point count ({points.Length}) does not match original count ({m_pointCount})", nameof(points));
         var ptr = m_points.GetDataPointer();
         for (int i = 0; i < points.Length; i++)
         {

@@ -244,6 +244,81 @@ public class InstanceArrayTests
     [InlineData(RTCBuildQuality.Low)]
     [InlineData(RTCBuildQuality.Medium)]
     [InlineData(RTCBuildQuality.High)]
+    public void InstanceArray_SetTransformBuffer_TimeStepWithoutSetup_Throws(RTCBuildQuality quality)
+    {
+        using var device = new Device();
+
+        var vertices = new V3f[]
+        {
+            new V3f(0, 0, 0),
+            new V3f(1, 0, 0),
+            new V3f(0, 1, 0)
+        };
+        var indices = new int[] { 0, 1, 2 };
+
+        using var geom = new TriangleGeometry(device, vertices, indices, quality);
+        using var instScene = new Scene(device, quality, dynamic: false);
+        instScene.AttachGeometry(geom);
+        instScene.Commit();
+
+        using var instanceArray = new InstanceArray(device, instScene, 2, quality);
+
+        var transforms = new Affine3f[]
+        {
+            Affine3f.Translation(0, 0, 0),
+            Affine3f.Translation(2, 0, 0)
+        };
+
+        Assert.Throws<ArgumentOutOfRangeException>(() => instanceArray.SetTransformBuffer(transforms, 1));
+        Assert.Throws<ArgumentOutOfRangeException>(() =>
+        {
+            Span<Affine3f> span = transforms;
+            instanceArray.SetTransformBuffer(span, 1);
+        });
+    }
+
+    [Theory]
+    [InlineData(RTCBuildQuality.Low)]
+    [InlineData(RTCBuildQuality.Medium)]
+    [InlineData(RTCBuildQuality.High)]
+    public unsafe void InstanceArray_SetSharedTransformBuffer_TimeStepWithoutSetup_Throws(RTCBuildQuality quality)
+    {
+        using var device = new Device();
+
+        var vertices = new V3f[]
+        {
+            new V3f(0, 0, 0),
+            new V3f(1, 0, 0),
+            new V3f(0, 1, 0)
+        };
+        var indices = new int[] { 0, 1, 2 };
+
+        using var geom = new TriangleGeometry(device, vertices, indices, quality);
+        using var instScene = new Scene(device, quality, dynamic: false);
+        instScene.AttachGeometry(geom);
+        instScene.Commit();
+
+        using var instanceArray = new InstanceArray(device, instScene, 2, quality);
+
+        var buffer = new float[2 * 12];
+        fixed (float* ptr = buffer)
+        {
+            try
+            {
+                instanceArray.SetSharedTransformBuffer(ptr, 1);
+                Assert.Fail("Expected ArgumentOutOfRangeException");
+            }
+            catch (ArgumentOutOfRangeException)
+            {
+                // Expected
+            }
+        }
+    }
+
+    [Theory]
+    [InlineData(RTCBuildQuality.Low)]
+    [InlineData(RTCBuildQuality.Medium)]
+    [InlineData(RTCBuildQuality.High)]
     public void InstanceArray_GetInstanceTransform(RTCBuildQuality quality)
     {
         using var device = new Device();

@@ -40,6 +40,9 @@ public partial class Scene
     /// <returns>List of collision results</returns>
     public unsafe List<CollisionResult> Collide(Scene otherScene)
     {
+        ThrowIfDisposed();
+        if (otherScene == null)
+            throw new ArgumentNullException(nameof(otherScene));
         var results = new List<CollisionResult>();
         var resultsHandle = GCHandle.Alloc(results, GCHandleType.Normal);
 
@@ -75,6 +78,11 @@ public partial class Scene
     /// <param name="callback">Callback invoked for each overlapping primitive pair</param>
     public unsafe void Collide(Scene otherScene, Action<CollisionResult> callback)
     {
+        ThrowIfDisposed();
+        if (otherScene == null)
+            throw new ArgumentNullException(nameof(otherScene));
+        if (callback == null)
+            throw new ArgumentNullException(nameof(callback));
         var callbackHandle = GCHandle.Alloc(callback, GCHandleType.Normal);
 
         try

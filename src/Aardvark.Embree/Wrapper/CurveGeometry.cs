@@ -73,6 +73,7 @@ public abstract class CurveGeometry : EmbreeGeometry
     /// Curve index buffer (one index per curve segment).
     /// </summary>
     protected readonly EmbreeBuffer<uint> m_indices;
+    private readonly int m_vertexCount;
 
     /// <summary>
     /// Creates a curve geometry.
@@ -89,6 +90,7 @@ public abstract class CurveGeometry : EmbreeGeometry
     protected CurveGeometry(Device device, RTCGeometryType type, ReadOnlyMemory<CurveVertex> vertices, ReadOnlyMemory<uint> indices, RTCBuildQuality quality)
         : base(device, type, quality)
     {
+        m_vertexCount = vertices.Length;
         m_vertices = EmbreeBuffer.Create(device, vertices);
         m_indices = EmbreeBuffer.Create(device, indices);
 
@@ -113,6 +115,9 @@ public abstract class CurveGeometry : EmbreeGeometry
     /// </remarks>
     public unsafe void UpdateControlPoints(ReadOnlyMemory<CurveVertex> controlPoints)
     {
+        ThrowIfDisposed();
+        if (controlPoints.Length != m_vertexCount)
+            throw new ArgumentException($"Control point count ({controlPoints.Length}) does not match original count ({m_vertexCount})", nameof(controlPoints));
         var span = controlPoints.Span;
         var ptr = m_vertices.GetDataPointer();
         for (int i = 0; i < span.Length; i++)
@@ -132,6 +137,9 @@ public abstract class CurveGeometry : EmbreeGeometry
     /// </remarks>
     public unsafe void UpdateControlPoints(ReadOnlySpan<CurveVertex> controlPoints)
     {
+        ThrowIfDisposed();
+        if (controlPoints.Length != m_vertexCount)
+            throw new ArgumentException($"Control point count ({controlPoints.Length}) does not match original count ({m_vertexCount})", nameof(controlPoints));
         var ptr = m_vertices.GetDataPointer();
         for (int i = 0; i < controlPoints.Length; i++)
         {

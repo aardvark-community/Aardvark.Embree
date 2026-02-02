@@ -56,9 +56,11 @@ public unsafe partial class Scene
     /// LIMITATION: Embree 4's RTC_GEOMETRY_TYPE_INSTANCE does not support rtcSetGeometryPointQueryFunction.
     /// Point queries will NOT traverse instance geometries - only direct geometries are queried.
     /// This is a known limitation of the Embree API. Ray queries (Intersect/Occluded) work correctly with instances.
+    /// This method currently supports TriangleGeometry only. Other geometry types are not supported.
     /// </remarks>
     public ClosestPointInfo GetClosestPoint(V3f queryPoint, float maxRadius = float.PositiveInfinity)
     {
+        EnsureClosestPointSupportedGeometries();
         // prepare query (time=0)
         var q = new RTCPointQuery()
         {
@@ -102,6 +104,19 @@ public unsafe partial class Scene
             t_currentPointQueryCallback = IntPtr.Zero;
             callbackHandle.Free();
             gch.Free();
+        }
+    }
+
+    private void EnsureClosestPointSupportedGeometries()
+    {
+        foreach (var geometry in m_geometries.Values)
+        {
+            if (geometry is TriangleGeometry)
+                continue;
+            if (geometry is InstanceGeometry || geometry is InstanceArray)
+                continue;
+
+            throw new NotSupportedException($"GetClosestPoint supports only TriangleGeometry attached directly to the scene. Unsupported geometry type: {geometry.GetType().Name}.");
         }
     }
 
