@@ -35,6 +35,8 @@ jobs:
       run: dotnet paket restore
     - name: Build Diagnostics
       run: dotnet build src/Aardvark.Embree.Diagnostics.Tests/Aardvark.Embree.Diagnostics.Tests.csproj --configuration Debug
+    - name: Build Main Tests
+      run: dotnet build src/Aardvark.Embree.Tests/Aardvark.Embree.Tests.csproj --configuration Debug
     - name: Run Diagnostics Tests
       run: |
         set +e
