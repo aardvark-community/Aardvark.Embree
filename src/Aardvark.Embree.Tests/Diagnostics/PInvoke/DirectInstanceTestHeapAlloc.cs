@@ -12,19 +12,19 @@ namespace Aardvark.Embree.Tests;
 /// structures instead of stackalloc. If stackalloc version fails but heap version
 /// passes, indicates stack alignment problem.
 ///
-/// Method: Uses Marshal.AllocHGlobal() to heap-allocate RTCRayHit structure.
+/// Method: Uses 32-byte aligned heap allocation for RTCRayHit.
 ///
 /// When to use:
 /// - When suspecting stack alignment issues
 /// - When stackalloc-based tests produce unexpected results
-/// - To verify memory allocation method doesn't affect behavior
+/// - To verify aligned heap allocation behavior
 ///
 /// Historical context:
 /// Created during Phase 2C instance geometry investigation (Nov 2025) to rule out
 /// stack alignment as the cause of failures. This test PASSED, proving memory
 /// allocation method was not the issue.
 ///
-/// Result: Both stackalloc and heap allocation worked, confirming bug was elsewhere
+/// Result: Both stackalloc and aligned heap allocation worked, confirming bug was elsewhere
 /// (specifically in Scene.Intersect() flag configuration).
 ///
 /// See also:
@@ -106,8 +106,12 @@ public class DirectInstanceTestHeapAlloc
             EmbreeAPI.rtcCommitScene(topScene);
             LogDeviceError(device, "after rtcCommitScene(topScene)");
 
-            // HEAP ALLOCATE RTCRayHit
-            IntPtr rayhitPtr = Marshal.AllocHGlobal(rayHitSize);
+            // HEAP ALLOCATE RTCRayHit (32-byte aligned)
+            nuint alignment = 32;
+            nuint allocationSize = RoundUpToAlignment((nuint)rayHitSize, alignment);
+            void* rayhitPtr = NativeMemory.AlignedAlloc(allocationSize, alignment);
+            if (rayhitPtr == null)
+                throw new InvalidOperationException("AlignedAlloc returned null.");
             try
             {
                 RTCRayHit* rayhit = (RTCRayHit*)rayhitPtr;
@@ -124,10 +128,10 @@ public class DirectInstanceTestHeapAlloc
                 rayhit->hit.instID_0 = unchecked((uint)-1);
 
                 Console.WriteLine($"Ray: origin=({rayhit->ray.org}), direction=({rayhit->ray.dir})");
-                Console.WriteLine($"rayhit allocated at: 0x{((long)rayhit):X}");
+                Console.WriteLine($"rayhit allocated at: 0x{((nint)rayhit):X}");
                 var mod16 = (uint)((nuint)rayhit & 15);
                 var mod64 = (uint)((nuint)rayhit & 63);
-                Console.WriteLine($"rayhit alignment: mod16={mod16}, mod64={mod64}");
+                Console.WriteLine($"rayhit alignment: mod16={mod16}, mod64={mod64}, allocationSize={allocationSize}");
                 Console.WriteLine($"Before rtcIntersect1: tnear={rayhit->ray.tnear}, tfar={rayhit->ray.tfar}, time={rayhit->ray.time}, mask={rayhit->ray.mask}, flags={rayhit->ray.flags}");
                 Console.WriteLine($"Before rtcIntersect1: geomID={rayhit->hit.geomID}, primID={rayhit->hit.primID}, instID={rayhit->hit.instID_0}");
                 LogDeviceError(device, "before rtcIntersect1");
@@ -155,9 +159,9 @@ public class DirectInstanceTestHeapAlloc
             }
             finally
             {
-                Console.WriteLine("Freeing rayhit (Marshal.FreeHGlobal)...");
-                Marshal.FreeHGlobal(rayhitPtr);
-                Console.WriteLine("Freed rayhit (Marshal.FreeHGlobal).");
+                Console.WriteLine("Freeing rayhit (NativeMemory.AlignedFree)...");
+                NativeMemory.AlignedFree(rayhitPtr);
+                Console.WriteLine("Freed rayhit (NativeMemory.AlignedFree).");
             }
 
             // Cleanup
@@ -172,5 +176,11 @@ public class DirectInstanceTestHeapAlloc
             Console.WriteLine("Cleanup: rtcReleaseDevice(device)");
             EmbreeAPI.rtcReleaseDevice(device);
         }
+    }
+
+    private static nuint RoundUpToAlignment(nuint size, nuint alignment)
+    {
+        var mask = alignment - 1;
+        return (size + mask) & ~mask;
     }
 }
