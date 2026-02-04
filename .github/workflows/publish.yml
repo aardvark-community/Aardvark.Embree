@@ -1,8 +1,12 @@
 name: Publish
 on:
-  workflow_dispatch:
-  release:
-    types: [published]
+  push:
+    branches:
+      - master
+      - embree4
+    paths:
+      - RELEASE_NOTES.md 
+      - .github/workflows/publish.yml
 jobs:
   pack:
     name: Package
