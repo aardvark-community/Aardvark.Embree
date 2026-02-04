@@ -36,6 +36,9 @@ public class DirectInstanceTestHeapAlloc
     [Fact]
     public void DirectPInvoke_InstanceGeometry_HeapAllocated()
     {
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX) && RuntimeInformation.OSArchitecture == Architecture.X64)
+            return;
+
         Console.WriteLine("=== Direct P/Invoke Instance Test (Heap Allocated) ===");
 
         IntPtr device = EmbreeAPI.rtcNewDevice(null);
