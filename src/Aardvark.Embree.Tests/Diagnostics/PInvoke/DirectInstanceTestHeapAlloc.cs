@@ -125,6 +125,9 @@ public class DirectInstanceTestHeapAlloc
 
                 Console.WriteLine($"Ray: origin=({rayhit->ray.org}), direction=({rayhit->ray.dir})");
                 Console.WriteLine($"rayhit allocated at: 0x{((long)rayhit):X}");
+                var mod16 = (uint)((nuint)rayhit & 15);
+                var mod64 = (uint)((nuint)rayhit & 63);
+                Console.WriteLine($"rayhit alignment: mod16={mod16}, mod64={mod64}");
                 Console.WriteLine($"Before rtcIntersect1: tnear={rayhit->ray.tnear}, tfar={rayhit->ray.tfar}, time={rayhit->ray.time}, mask={rayhit->ray.mask}, flags={rayhit->ray.flags}");
                 Console.WriteLine($"Before rtcIntersect1: geomID={rayhit->hit.geomID}, primID={rayhit->hit.primID}, instID={rayhit->hit.instID_0}");
                 LogDeviceError(device, "before rtcIntersect1");

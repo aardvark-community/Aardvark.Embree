@@ -202,17 +202,9 @@ public class InstanceIntersectDiagnostics
                 rayhit = (RTCRayHit*)alignedPtr;
             }
 
-            var rayhitAlignment = allocationMode switch
-            {
-                AllocationMode.HeapAligned64 => 64u,
-                AllocationMode.HeapAligned16 or AllocationMode.StackAligned => 16u,
-                _ => 0u
-            };
-            if (rayhitAlignment > 0)
-            {
-                var misalignment = (uint)((nuint)rayhit % rayhitAlignment);
-                Console.WriteLine($"rayhit alignment: {rayhitAlignment}-byte, misalignment={misalignment}");
-            }
+            var mod16 = (uint)((nuint)rayhit & 15);
+            var mod64 = (uint)((nuint)rayhit & 63);
+            Console.WriteLine($"rayhit alignment: mod16={mod16}, mod64={mod64}");
 
             rayhit->ray.org = new V3f(0.25f, 0.25f, 1.0f);
             rayhit->ray.dir = new V3f(0.0f, 0.0f, -1.0f);
