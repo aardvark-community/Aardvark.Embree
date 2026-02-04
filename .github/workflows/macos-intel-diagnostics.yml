@@ -38,12 +38,22 @@ jobs:
     - name: Run Diagnostics Tests
       run: |
         set +e
-        dotnet test src/Aardvark.Embree.Diagnostics.Tests/Aardvark.Embree.Diagnostics.Tests.csproj --no-build --configuration Debug --logger "console;verbosity=detailed" > test_output.txt 2>&1
-        TEST_EXIT_CODE=$?
-        cat test_output.txt
-        echo "Diagnostics exit code: $TEST_EXIT_CODE"
+        dotnet test src/Aardvark.Embree.Tests/Aardvark.Embree.Tests.csproj --no-build --configuration Debug --logger "console;verbosity=detailed" --filter "FullyQualifiedName~DirectInstanceTestHeapAlloc" > test_output_main_heap.txt 2>&1
+        MAIN_HEAP_EXIT_CODE=$?
+        cat test_output_main_heap.txt
+        echo "Main HeapAlloc test exit code: $MAIN_HEAP_EXIT_CODE"
 
-        dotnet test src/Aardvark.Embree.Tests/Aardvark.Embree.Tests.csproj --no-build --configuration Debug --logger "console;verbosity=detailed" --filter "FullyQualifiedName~DirectInstanceTestHeapAlloc" > test_output_heap.txt 2>&1
+        dotnet test src/Aardvark.Embree.Diagnostics.Tests/Aardvark.Embree.Diagnostics.Tests.csproj --no-build --configuration Debug --logger "console;verbosity=detailed" --filter "FullyQualifiedName~WrapperInstanceIntersect" > test_output_wrapper.txt 2>&1
+        WRAPPER_EXIT_CODE=$?
+        cat test_output_wrapper.txt
+        echo "Wrapper test exit code: $WRAPPER_EXIT_CODE"
+
+        dotnet test src/Aardvark.Embree.Diagnostics.Tests/Aardvark.Embree.Diagnostics.Tests.csproj --no-build --configuration Debug --logger "console;verbosity=detailed" --filter "FullyQualifiedName~DirectInstanceIntersect_StackAllocated" > test_output_stack.txt 2>&1
+        STACK_EXIT_CODE=$?
+        cat test_output_stack.txt
+        echo "StackAlloc test exit code: $STACK_EXIT_CODE"
+
+        dotnet test src/Aardvark.Embree.Diagnostics.Tests/Aardvark.Embree.Diagnostics.Tests.csproj --no-build --configuration Debug --logger "console;verbosity=detailed" --filter "FullyQualifiedName~DirectInstanceIntersect_HeapAllocated" > test_output_heap.txt 2>&1
         HEAP_EXIT_CODE=$?
         cat test_output_heap.txt
         echo "HeapAlloc test exit code: $HEAP_EXIT_CODE"
