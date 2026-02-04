@@ -11,6 +11,9 @@ namespace Aardvark.Embree.Tests;
 /// </summary>
 public class MotionBlurTests
 {
+    private static readonly int[] TriangleIndices = { 0, 1, 2 };
+    private static readonly int[] QuadIndices = { 0, 1, 2, 0, 2, 3 };
+    private static readonly float[] KeyFrameTimes = { 0.0f, 0.33f, 0.67f, 1.0f };
     // ===== Basic Motion Blur Tests =====
 
     [Theory]
@@ -35,7 +38,7 @@ public class MotionBlurTests
             new V3f(0, 1, 1)
         };
 
-        var indices = new int[] { 0, 1, 2 };
+        var indices = TriangleIndices;
 
         using var geom = new MotionBlurGeometry(device,
             new ReadOnlyMemory<V3f>(verticesT0),
@@ -69,7 +72,7 @@ public class MotionBlurTests
             new V3f(0, 1, 4)
         };
 
-        var indices = new int[] { 0, 1, 2 };
+        var indices = TriangleIndices;
 
         using var geom = new MotionBlurGeometry(device,
             new ReadOnlyMemory<V3f>(verticesT0),
@@ -137,7 +140,7 @@ public class MotionBlurTests
             new V3f(0, 1, 2)
         };
 
-        var indices = new int[] { 0, 1, 2 };
+        var indices = TriangleIndices;
 
         var timeSteps = new ReadOnlyMemory<V3f>[]
         {
@@ -181,7 +184,7 @@ public class MotionBlurTests
             new V3f(0, 1, 6)
         };
 
-        var indices = new int[] { 0, 1, 2 };
+        var indices = TriangleIndices;
 
         var timeSteps = new ReadOnlyMemory<V3f>[]
         {
@@ -272,7 +275,7 @@ public class MotionBlurTests
             }
         };
 
-        var indices = new int[] { 0, 1, 2 };
+        var indices = TriangleIndices;
         var memorySteps = timeSteps.Select(v => new ReadOnlyMemory<V3f>(v)).ToArray();
 
         using var geom = new MotionBlurGeometry(device, memorySteps, new ReadOnlyMemory<int>(indices), quality);
@@ -282,7 +285,7 @@ public class MotionBlurTests
 
         // Test intersection at different time values - verify at least some hits
         // due to complex rotation, not all rays may hit at all times
-        var testTimes = new[] { 0.0f, 0.33f, 0.67f, 1.0f };  // Use key frame times
+        var testTimes = KeyFrameTimes;  // Use key frame times
         int hitCount = 0;
 
         foreach (var t in testTimes)
@@ -331,7 +334,7 @@ public class MotionBlurTests
             new V3f(-2, 2, 2)
         };
 
-        var indices = new int[] { 0, 1, 2, 0, 2, 3 }; // Two triangles forming a quad
+        var indices = QuadIndices; // Two triangles forming a quad
 
         using var geom = new MotionBlurGeometry(device,
             new ReadOnlyMemory<V3f>(verticesT0),
@@ -399,7 +402,7 @@ public class MotionBlurTests
             timeSteps[i] = new ReadOnlyMemory<V3f>(vertices);
         }
 
-        var indices = new int[] { 0, 1, 2 };
+        var indices = TriangleIndices;
 
         using var geom = new MotionBlurGeometry(device, timeSteps, new ReadOnlyMemory<int>(indices), quality);
         using var scene = new Scene(device, quality, dynamic: false);
@@ -439,7 +442,7 @@ public class MotionBlurTests
             new V3f(1, -1, 0),
             new V3f(0, 1, 0)
         };
-        var indices = new int[] { 0, 1, 2 };
+        var indices = TriangleIndices;
 
         using var triangleGeom = new TriangleGeometry(device, vertices, indices, quality);
 
@@ -492,7 +495,7 @@ public class MotionBlurTests
             new V3f(0, 1.5f, 0)
         };
 
-        var indices = new int[] { 0, 1, 2 };
+        var indices = TriangleIndices;
 
         using var motionGeom = new MotionBlurGeometry(device,
             new ReadOnlyMemory<V3f>(verticesT0),
@@ -607,7 +610,7 @@ public class MotionBlurTests
         using var geom1 = new MotionBlurGeometry(device,
             new ReadOnlyMemory<V3f>(vertices1T0),
             new ReadOnlyMemory<V3f>(vertices1T1),
-            new ReadOnlyMemory<int>(new int[] { 0, 1, 2 }),
+            new ReadOnlyMemory<int>(TriangleIndices),
             quality);
         geom1.SetTimeRange(0.0f, 0.6f);
         geom1.Commit();
@@ -619,7 +622,7 @@ public class MotionBlurTests
         using var geom2 = new MotionBlurGeometry(device,
             new ReadOnlyMemory<V3f>(vertices2T0),
             new ReadOnlyMemory<V3f>(vertices2T1),
-            new ReadOnlyMemory<int>(new int[] { 0, 1, 2 }),
+            new ReadOnlyMemory<int>(TriangleIndices),
             quality);
         geom2.SetTimeRange(0.4f, 1.0f);
         geom2.Commit();
@@ -692,7 +695,7 @@ public class MotionBlurTests
                 new V3f(x, y + 0.5f, z + 2)
             };
 
-            var indices = new int[] { 0, 1, 2 };
+            var indices = TriangleIndices;
 
             geometries[i] = new MotionBlurGeometry(device,
                 new ReadOnlyMemory<V3f>(verticesT0),

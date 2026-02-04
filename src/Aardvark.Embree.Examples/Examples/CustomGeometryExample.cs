@@ -139,7 +139,7 @@ public class CustomGeometryExample : ExampleBase
     /// - Procedural planets/asteroids
     /// - Bubble simulations
     /// </summary>
-    private SphereData GenerateProceduralSphereGrid()
+    private static SphereData GenerateProceduralSphereGrid()
     {
         const int gridSize = 2;
         const float spacing = 3.0f;
@@ -417,7 +417,7 @@ public class CustomGeometryExample : ExampleBase
     /// <summary>
     /// Explains the mathematical background and practical applications.
     /// </summary>
-    private void PrintMathematicalBackground()
+    private static void PrintMathematicalBackground()
     {
         PrintSection("Mathematical Background");
         Print("Implicit Surface Representation:");

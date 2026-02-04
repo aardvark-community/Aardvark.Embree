@@ -13,7 +13,7 @@ namespace Aardvark.Embree.Tests.EdgeCases;
 /// </summary>
 public class InfiniteDirectionTests
 {
-    private Scene CreateSimpleTriangleScene(Device device)
+    private static Scene CreateSimpleTriangleScene(Device device)
     {
         // Simple triangle at z=0 plane
         var vertices = new V3f[]

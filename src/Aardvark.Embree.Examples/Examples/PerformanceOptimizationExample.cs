@@ -255,7 +255,7 @@ public class PerformanceOptimizationExample : ExampleBase
         }
     }
 
-    private void TraceCoherentRays(Scene scene, int count)
+    private static void TraceCoherentRays(Scene scene, int count)
     {
         var origin = new V3f(GridSize / 2f, GridSize / 2f, 100);
         var hit = new RayHit();
@@ -276,7 +276,7 @@ public class PerformanceOptimizationExample : ExampleBase
         }
     }
 
-    private void TraceIncoherentRays(Scene scene, int count)
+    private static void TraceIncoherentRays(Scene scene, int count)
     {
         var random = new Random(42);
         var hit = new RayHit();

@@ -12,6 +12,7 @@ namespace Aardvark.Embree.Tests;
 /// </summary>
 public class MemoryStressTests
 {
+    private static readonly int[] TriangleIndices = { 0, 1, 2 };
     [Theory(DisplayName = "Repeated geometry allocation and deallocation succeeds")]
     [InlineData(RTCBuildQuality.Low)]
     [InlineData(RTCBuildQuality.Medium)]
@@ -24,7 +25,7 @@ public class MemoryStressTests
         {
             new(0, 0, 0), new(1, 0, 0), new(0, 1, 0)
         };
-        var indices = new int[] { 0, 1, 2 };
+        var indices = TriangleIndices;
 
         for (int i = 0; i < 1000; i++)
         {
@@ -94,7 +95,7 @@ public class MemoryStressTests
         {
             new(0, 0, 0), new(1, 0, 0), new(0, 1, 0)
         };
-        var indices = new int[] { 0, 1, 2 };
+        var indices = TriangleIndices;
 
         long memoryBefore = GC.GetTotalMemory(true);
 
@@ -140,7 +141,7 @@ public class MemoryStressTests
             {
                 new(i, 0, 0), new(i + 1, 0, 0), new(i, 1, 0)
             };
-            var indices = new int[] { 0, 1, 2 };
+            var indices = TriangleIndices;
 
             using var geometry = new TriangleGeometry(device, vertices, indices, quality);
             scene.AttachGeometry(geometry);
@@ -171,7 +172,7 @@ public class MemoryStressTests
         {
             new(0, 0, 0), new(1, 0, 0), new(0, 1, 0)
         };
-        var indices = new int[] { 0, 1, 2 };
+        var indices = TriangleIndices;
 
         GC.Collect();
         GC.WaitForPendingFinalizers();
@@ -217,7 +218,7 @@ public class MemoryStressTests
         {
             new(0, 0, 0), new(1, 0, 0), new(0, 1, 0)
         };
-        var indices = new int[] { 0, 1, 2 };
+        var indices = TriangleIndices;
 
         using var geometry = new TriangleGeometry(device, vertices, indices, quality);
         scene.AttachGeometry(geometry);

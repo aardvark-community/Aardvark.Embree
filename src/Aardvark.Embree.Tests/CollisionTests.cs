@@ -14,7 +14,7 @@ public class CollisionTests
     /// <summary>
     /// Creates a simple scene with a single triangle on the specified device.
     /// </summary>
-    private (Scene, TriangleGeometry) CreateTriangleScene(Device device, V3f[] vertices, int[] indices)
+    private static (Scene, TriangleGeometry) CreateTriangleScene(Device device, V3f[] vertices, int[] indices)
     {
         var geometry = new TriangleGeometry(device, vertices, indices, RTCBuildQuality.Medium);
         var scene = new Scene(device, RTCBuildQuality.Medium, dynamic: false);

@@ -29,6 +29,7 @@ public class RayPacket4IntegrationTests : IDisposable
     {
         // Small delay to help native resource cleanup between tests
         Thread.Sleep(5);
+        GC.SuppressFinalize(this);
     }
     #region Intersect4 Tests
 
@@ -476,6 +477,7 @@ public class RayPacket8IntegrationTests : IDisposable
     {
         // Small delay to help native resource cleanup between tests
         Thread.Sleep(5);
+        GC.SuppressFinalize(this);
     }
 
     #region Intersect8 Tests
@@ -1022,6 +1024,7 @@ public class RayPacket16IntegrationTests : IDisposable
     {
         // Small delay to help native resource cleanup between tests
         Thread.Sleep(5);
+        GC.SuppressFinalize(this);
     }
 
     #region Intersect16 Tests

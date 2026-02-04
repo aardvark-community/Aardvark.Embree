@@ -54,7 +54,7 @@ public class InterpolationExample : ExampleBase
     /// Barycentric coordinates (u, v, w) represent a point as a weighted combination
     /// of triangle vertices, where w = 1 - u - v.
     /// </summary>
-    private void ExplainBarycentricCoordinates()
+    private static void ExplainBarycentricCoordinates()
     {
         Print("Barycentric coordinates express any point inside a triangle as:");
         Print("  P = w*V0 + u*V1 + v*V2, where w = 1 - u - v");

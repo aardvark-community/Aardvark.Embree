@@ -13,6 +13,7 @@ namespace Aardvark.Embree.Tests;
 /// </summary>
 public class ThreadSafetyTests
 {
+    private static readonly int[] TriangleIndices = { 0, 1, 2 };
     [Theory(DisplayName = "Concurrent intersect calls on same scene succeed")]
     [InlineData(RTCBuildQuality.Low)]
     [InlineData(RTCBuildQuality.Medium)]
@@ -28,7 +29,7 @@ public class ThreadSafetyTests
             {
                 new(0, 0, 0), new(1, 0, 0), new(0, 1, 0)
             };
-            var indices = new int[] { 0, 1, 2 };
+            var indices = TriangleIndices;
 
             geometry = new TriangleGeometry(device, vertices, indices, quality);
             scene = new Scene(device, quality, false);
@@ -69,7 +70,7 @@ public class ThreadSafetyTests
             {
                 new(-10, -10, 0), new(10, -10, 0), new(0, 10, 0)
             };
-            var indices = new int[] { 0, 1, 2 };
+            var indices = TriangleIndices;
 
             geometry = new TriangleGeometry(device, vertices, indices, quality);
             scene = new Scene(device, quality, false);
@@ -113,7 +114,7 @@ public class ThreadSafetyTests
             {
                 new(0, 0, 0), new(1, 0, 0), new(0, 1, 0)
             };
-            var indices = new int[] { 0, 1, 2 };
+            var indices = TriangleIndices;
 
             geometry = new TriangleGeometry(device, vertices, indices, quality);
             scene = new Scene(device, quality, true);
@@ -151,7 +152,7 @@ public class ThreadSafetyTests
             {
                 new(0, 0, 0), new(1, 0, 0), new(0, 1, 0)
             };
-            var indices = new int[] { 0, 1, 2 };
+            var indices = TriangleIndices;
 
             geometry = new TriangleGeometry(device, vertices, indices, quality);
             scene = new Scene(device, quality, false);
@@ -192,7 +193,7 @@ public class ThreadSafetyTests
                 {
                     new(i, 0, 0), new(i + 1, 0, 0), new(i, 1, 0)
                 };
-                var indices = new int[] { 0, 1, 2 };
+                var indices = TriangleIndices;
                 return new TriangleGeometry(device, vertices, indices, quality);
             })).ToArray();
 
@@ -261,7 +262,7 @@ public class ThreadSafetyTests
             {
                 new(0, 0, 0), new(1, 0, 0), new(0, 1, 0)
             };
-            var indices = new int[] { 0, 1, 2 };
+                var indices = TriangleIndices;
 
             geometry = new TriangleGeometry(device, vertices, indices, quality);
             scene = new Scene(device, quality, false);

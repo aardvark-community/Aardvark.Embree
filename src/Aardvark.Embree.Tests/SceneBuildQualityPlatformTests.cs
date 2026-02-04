@@ -1,19 +1,10 @@
 using System;
 using System.Runtime.InteropServices;
 using Xunit;
-using Xunit.Abstractions;
-
 namespace Aardvark.Embree.Tests;
 
 public class SceneBuildQualityPlatformTests
 {
-    private readonly ITestOutputHelper _output;
-
-    public SceneBuildQualityPlatformTests(ITestOutputHelper output)
-    {
-        _output = output;
-    }
-
     [Fact]
     public void RefitSceneBuildQuality_IsPlatformDependent()
     {
@@ -31,11 +22,11 @@ public class SceneBuildQualityPlatformTests
             var detailPtr = EmbreeAPI.rtcGetDeviceLastErrorMessage(device.Handle);
             var detail = detailPtr != IntPtr.Zero ? Marshal.PtrToStringAnsi(detailPtr) : null;
 
-            _output.WriteLine($"OS: {RuntimeInformation.OSDescription}");
-            _output.WriteLine($"Embree Version: {device.Version}");
-            _output.WriteLine($"rtcSetSceneBuildQuality(Refit) error: {err}");
+            Console.WriteLine($"OS: {RuntimeInformation.OSDescription}");
+            Console.WriteLine($"Embree Version: {device.Version}");
+            Console.WriteLine($"rtcSetSceneBuildQuality(Refit) error: {err}");
             if (!string.IsNullOrWhiteSpace(detail))
-                _output.WriteLine($"Error detail: {detail}");
+                Console.WriteLine($"Error detail: {detail}");
 
             if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
             {

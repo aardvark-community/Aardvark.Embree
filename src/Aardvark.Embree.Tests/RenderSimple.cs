@@ -53,7 +53,7 @@ public class RenderSimpleTests
         device.Dispose();
     }
 
-    static PixImage RenderSimpleImage(Scene scene, int width, int height, Trafo3d view, Trafo3d proj, Dictionary<uint, EmbreeIndexedGeometry> geos)
+    static PixImage<byte> RenderSimpleImage(Scene scene, int width, int height, Trafo3d view, Trafo3d proj, Dictionary<uint, EmbreeIndexedGeometry> geos)
     { 
         var img = new PixImage<byte>(width, height, 4);
         var mtx = img.GetMatrix<C4b>();

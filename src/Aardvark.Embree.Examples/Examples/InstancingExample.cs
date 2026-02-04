@@ -27,6 +27,11 @@ namespace Aardvark.Embree.Examples.Examples;
 /// </summary>
 public class InstancingExample : ExampleBase
 {
+    private static readonly int[] TrunkFrontIndices = { 0, 1, 5, 0, 5, 4 };
+    private static readonly int[] TrunkRightIndices = { 1, 2, 6, 1, 6, 5 };
+    private static readonly int[] TrunkBackIndices = { 2, 3, 7, 2, 7, 6 };
+    private static readonly int[] TrunkLeftIndices = { 3, 0, 4, 3, 4, 7 };
+    private static readonly int[] TrunkBottomIndices = { 3, 2, 1, 3, 1, 0 };
     public override string Title => "Geometry Instancing";
     public override string Description => "Efficient geometry reuse with transformation hierarchies";
     public override string Category => "Instancing and Scene Composition";
@@ -119,7 +124,7 @@ public class InstancingExample : ExampleBase
         PrintSection("4. Hierarchical Instancing - Tree Clusters");
 
         // Hierarchical instancing: instance a scene that itself contains instances
-        using var clusterScene = CreateTreeCluster();
+        using var clusterGeometry = CreateTreeCluster();
         Print("Created tree cluster (3 trees arranged in triangle)");
 
         using var hierarchicalScene = new Scene(Device, RTCBuildQuality.High, dynamic: false);
@@ -137,7 +142,7 @@ public class InstancingExample : ExampleBase
 
             var transform = Affine3f.Translation(posX, 0, posZ) * Affine3f.Rotation(V3f.OIO, angle);
 
-            var clusterInstance = new InstanceGeometry(Device, clusterScene, transform, RTCBuildQuality.High);
+            var clusterInstance = new InstanceGeometry(Device, clusterGeometry, transform, RTCBuildQuality.High);
             hierarchicalScene.AttachGeometry(clusterInstance);
             clusterInstances.Add(clusterInstance);
         }
@@ -235,11 +240,11 @@ public class InstancingExample : ExampleBase
         vertices.Add(new V3f(-trunkTop, trunkHeight, trunkTop));  // 7
 
         // Trunk faces (4 sides + bottom = 6 triangles)
-        indices.AddRange(new[] { 0, 1, 5, 0, 5, 4 }); // Front
-        indices.AddRange(new[] { 1, 2, 6, 1, 6, 5 }); // Right
-        indices.AddRange(new[] { 2, 3, 7, 2, 7, 6 }); // Back
-        indices.AddRange(new[] { 3, 0, 4, 3, 4, 7 }); // Left
-        indices.AddRange(new[] { 3, 2, 1, 3, 1, 0 }); // Bottom
+        indices.AddRange(TrunkFrontIndices); // Front
+        indices.AddRange(TrunkRightIndices); // Right
+        indices.AddRange(TrunkBackIndices); // Back
+        indices.AddRange(TrunkLeftIndices); // Left
+        indices.AddRange(TrunkBottomIndices); // Bottom
 
         // Crown: Octagonal cone (8 triangles)
         var crownBase = 0.8f;
@@ -264,11 +269,9 @@ public class InstancingExample : ExampleBase
         for (int i = 0; i < 8; i++)
         {
             var next = (i + 1) % 8;
-            indices.AddRange(new[] {
-                crownVertexStart,           // tip
-                crownVertexStart + 1 + i,   // current base point
-                crownVertexStart + 1 + next // next base point
-            });
+            indices.Add(crownVertexStart);           // tip
+            indices.Add(crownVertexStart + 1 + i);   // current base point
+            indices.Add(crownVertexStart + 1 + next); // next base point
         }
 
         return new TriangleGeometry(
@@ -305,7 +308,7 @@ public class InstancingExample : ExampleBase
     /// Creates a tree cluster scene (3 trees arranged in triangle).
     /// This scene will itself be instanced to create hierarchical instancing.
     /// </summary>
-    private EmbreeGeometry CreateTreeCluster()
+    private InstanceGeometry CreateTreeCluster()
     {
         // Create base tree
         using var treeGeometry = CreateTreeGeometry();
@@ -343,7 +346,7 @@ public class InstancingExample : ExampleBase
     /// <param name="instanceCount">Number of instances</param>
     /// <param name="instanced">True for instanced approach, false for explicit copies</param>
     /// <returns>Estimated memory usage in KB</returns>
-    private double EstimateMemoryUsage(int triangleCount, int instanceCount, bool instanced = true)
+    private static double EstimateMemoryUsage(int triangleCount, int instanceCount, bool instanced = true)
     {
         // Each triangle: 3 vertices × 12 bytes (V3f) + 3 indices × 4 bytes
         var bytesPerTriangle = 3 * 12 + 3 * 4;

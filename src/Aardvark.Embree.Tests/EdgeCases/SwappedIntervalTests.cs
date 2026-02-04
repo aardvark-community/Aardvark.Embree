@@ -226,7 +226,7 @@ public class SwappedIntervalTests
 
     // Helper methods
 
-    private Scene CreateSimpleTriangleScene(Device device)
+    private static Scene CreateSimpleTriangleScene(Device device)
     {
         var vertices = new V3f[]
         {
@@ -244,7 +244,7 @@ public class SwappedIntervalTests
         return scene;
     }
 
-    private Scene CreateMultiTriangleScene(Device device)
+    private static Scene CreateMultiTriangleScene(Device device)
     {
         var scene = new Scene(device, RTCBuildQuality.High, false);
 

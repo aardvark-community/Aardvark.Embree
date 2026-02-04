@@ -8,7 +8,7 @@ namespace Aardvark.Embree.Tests;
 /// </summary>
 public class IntersectionTests
 {
-    private (Device, Scene) CreateSimpleScene(RTCBuildQuality quality = RTCBuildQuality.High)
+    private static (Device, Scene) CreateSimpleScene(RTCBuildQuality quality = RTCBuildQuality.High)
     {
         var device = new Device();
 

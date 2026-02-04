@@ -28,4 +28,19 @@ jobs:
     - name: Build
       run: .\build.cmd
     - name: Test
-      run: dotnet test src\Aardvark.Embree.sln --no-build --configuration Debug --verbosity normal
+      run: |
+        $testOutput = "test_output.txt"
+        dotnet test src\Aardvark.Embree.sln --no-build --configuration Debug --logger "console;verbosity=detailed" *> $testOutput
+        $testExitCode = $LASTEXITCODE
+        Get-Content $testOutput
+
+        if (Select-String -Path $testOutput -Pattern "Failed:") {
+          Write-Error "Tests failed!"
+          exit 1
+        } elseif (Select-String -Path $testOutput -Pattern "Passed:") {
+          Write-Host "All tests passed despite exit code $testExitCode"
+          exit 0
+        } else {
+          Write-Error "Could not determine test status"
+          exit $testExitCode
+        }

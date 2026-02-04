@@ -15,7 +15,7 @@ public class FilterFunctionTests
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     private unsafe delegate void FilterFunctionN(RTCFilterFunctionNArguments* args);
 
-    private (Device, Scene) CreateSceneWithTwoTriangles(RTCBuildQuality quality)
+    private static (Device, Scene) CreateSceneWithTwoTriangles(RTCBuildQuality quality)
     {
         var device = new Device();
 

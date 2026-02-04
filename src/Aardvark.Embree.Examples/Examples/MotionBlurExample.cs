@@ -307,7 +307,7 @@ public class MotionBlurExample : ExampleBase
     /// - Understanding temporal derivatives
     /// - MotionBlurInterpolation helper utilities
     /// </summary>
-    private void Demo4_MotionAnalysis()
+    private static void Demo4_MotionAnalysis()
     {
         PrintSection("Demo 4: Motion Analysis (Vectors and Speed)");
         Print("Analyzing motion characteristics of a bouncing triangle...");
@@ -381,7 +381,7 @@ public class MotionBlurExample : ExampleBase
         Print("");
     }
 
-    private (V3f[] vertices, int[] indices) CreateSphere(V3f center, float radius, int segments)
+    private static (V3f[] vertices, int[] indices) CreateSphere(V3f center, float radius, int segments)
     {
         var vertices = new System.Collections.Generic.List<V3f>();
         var indices = new System.Collections.Generic.List<int>();
@@ -426,7 +426,7 @@ public class MotionBlurExample : ExampleBase
         return (vertices.ToArray(), indices.ToArray());
     }
 
-    private int[] CreateSphereSimple(int segments)
+    private static int[] CreateSphereSimple(int segments)
     {
         var indices = new System.Collections.Generic.List<int>();
 
@@ -450,7 +450,7 @@ public class MotionBlurExample : ExampleBase
         return indices.ToArray();
     }
 
-    private V3f[] CreateCubeVertices(float size)
+    private static V3f[] CreateCubeVertices(float size)
     {
         float h = size / 2;
         return new V3f[]
@@ -464,7 +464,7 @@ public class MotionBlurExample : ExampleBase
         };
     }
 
-    private int[] CreateCubeIndices()
+    private static int[] CreateCubeIndices()
     {
         return new int[]
         {
@@ -477,7 +477,7 @@ public class MotionBlurExample : ExampleBase
         };
     }
 
-    private float InterpolateFloat(float a, float b, float t)
+    private static float InterpolateFloat(float a, float b, float t)
     {
         return a * (1.0f - t) + b * t;
     }

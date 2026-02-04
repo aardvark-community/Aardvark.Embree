@@ -74,23 +74,23 @@ public abstract class ExampleBase
     }
 
     /// <summary>Print the example footer.</summary>
-    protected void PrintFooter()
+    protected static void PrintFooter()
     {
         Console.WriteLine();
     }
 
     /// <summary>Print a section heading with underline.</summary>
-    protected void PrintSection(string title)
+    protected static void PrintSection(string title)
     {
         Console.WriteLine($"\n{title}");
         Console.WriteLine(new string('-', title.Length));
     }
 
     /// <summary>Print a message to console.</summary>
-    protected void Print(string message) => Console.WriteLine(message);
+    protected static void Print(string message) => Console.WriteLine(message);
 
     /// <summary>Print a ray hit result with formatted information.</summary>
-    protected void PrintHit(RayHit hit)
+    protected static void PrintHit(RayHit hit)
     {
         Console.WriteLine($"  [OK] HIT at distance {hit.T:F2}");
         Console.WriteLine($"    Normal: ({hit.Normal.X:F3}, {hit.Normal.Y:F3}, {hit.Normal.Z:F3})");
@@ -98,7 +98,7 @@ public abstract class ExampleBase
     }
 
     /// <summary>Print performance metrics (ray throughput).</summary>
-    protected void PrintPerformance(string label, int count, double timeMs)
+    protected static void PrintPerformance(string label, int count, double timeMs)
     {
         var throughput = Timer.FormatThroughput(count, timeMs);
         Console.WriteLine($"{label}: {count} in {timeMs:F2}ms ({throughput})");

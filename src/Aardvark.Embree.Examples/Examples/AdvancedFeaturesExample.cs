@@ -462,7 +462,7 @@ public class AdvancedFeaturesExample : ExampleBase
         return scene;
     }
 
-    private System.Collections.Generic.List<RayHit> CollectAllHits(Scene scene, V3f origin, V3f direction, int maxHits)
+    private static System.Collections.Generic.List<RayHit> CollectAllHits(Scene scene, V3f origin, V3f direction, int maxHits)
     {
         var hits = new System.Collections.Generic.List<RayHit>();
         var currentOrigin = origin;
@@ -492,7 +492,7 @@ public class AdvancedFeaturesExample : ExampleBase
         return hits;
     }
 
-    private (V3f origin, V3f direction)[] GenerateCoherentRays(V3f baseOrigin, int count)
+    private static (V3f origin, V3f direction)[] GenerateCoherentRays(V3f baseOrigin, int count)
     {
         var rays = new (V3f, V3f)[count];
         var random = new Random(42);
@@ -512,7 +512,7 @@ public class AdvancedFeaturesExample : ExampleBase
         return rays;
     }
 
-    private (V3f origin, V3f direction)[] GenerateIncoherentRays(int count)
+    private static (V3f origin, V3f direction)[] GenerateIncoherentRays(int count)
     {
         var rays = new (V3f, V3f)[count];
         var random = new Random(42);
@@ -545,7 +545,7 @@ public class AdvancedFeaturesExample : ExampleBase
     /// - tnear > tfar: No intersection (empty interval)
     /// - Unnormalized direction: tfar in direction-vector units, not world units
     /// </summary>
-    private bool IsValidRay(V3f origin, V3f direction)
+    private static bool IsValidRay(V3f origin, V3f direction)
     {
         // NaN origin: BVH tests fail, returns false (no hit)
         if (float.IsNaN(origin.X) || float.IsNaN(origin.Y) || float.IsNaN(origin.Z))
