@@ -106,12 +106,8 @@ public class DirectInstanceTestHeapAlloc
             EmbreeAPI.rtcCommitScene(topScene);
             LogDeviceError(device, "after rtcCommitScene(topScene)");
 
-            // HEAP ALLOCATE RTCRayHit (32-byte aligned)
-            nuint alignment = 32;
-            nuint allocationSize = RoundUpToAlignment((nuint)rayHitSize, alignment);
-            void* rayhitPtr = NativeMemory.AlignedAlloc(allocationSize, alignment);
-            if (rayhitPtr == null)
-                throw new InvalidOperationException("AlignedAlloc returned null.");
+            // HEAP ALLOCATE RTCRayHit (aligned)
+            IntPtr rayhitPtr = EmbreeMemory.AllocRayHit(out var allocationSize, out var alignment);
             try
             {
                 RTCRayHit* rayhit = (RTCRayHit*)rayhitPtr;
@@ -131,7 +127,7 @@ public class DirectInstanceTestHeapAlloc
                 Console.WriteLine($"rayhit allocated at: 0x{((nint)rayhit):X}");
                 var mod16 = (uint)((nuint)rayhit & 15);
                 var mod64 = (uint)((nuint)rayhit & 63);
-                Console.WriteLine($"rayhit alignment: mod16={mod16}, mod64={mod64}, allocationSize={allocationSize}");
+                Console.WriteLine($"rayhit alignment: mod16={mod16}, mod64={mod64}, allocationSize={allocationSize}, alignment={alignment}");
                 Console.WriteLine($"Before rtcIntersect1: tnear={rayhit->ray.tnear}, tfar={rayhit->ray.tfar}, time={rayhit->ray.time}, mask={rayhit->ray.mask}, flags={rayhit->ray.flags}");
                 Console.WriteLine($"Before rtcIntersect1: geomID={rayhit->hit.geomID}, primID={rayhit->hit.primID}, instID={rayhit->hit.instID_0}");
                 LogDeviceError(device, "before rtcIntersect1");
@@ -159,9 +155,9 @@ public class DirectInstanceTestHeapAlloc
             }
             finally
             {
-                Console.WriteLine("Freeing rayhit (NativeMemory.AlignedFree)...");
-                NativeMemory.AlignedFree(rayhitPtr);
-                Console.WriteLine("Freed rayhit (NativeMemory.AlignedFree).");
+                Console.WriteLine("Freeing rayhit (EmbreeMemory.FreeAligned)...");
+                EmbreeMemory.FreeAligned(rayhitPtr);
+                Console.WriteLine("Freed rayhit (EmbreeMemory.FreeAligned).");
             }
 
             // Cleanup
@@ -178,9 +174,4 @@ public class DirectInstanceTestHeapAlloc
         }
     }
 
-    private static nuint RoundUpToAlignment(nuint size, nuint alignment)
-    {
-        var mask = alignment - 1;
-        return (size + mask) & ~mask;
-    }
 }

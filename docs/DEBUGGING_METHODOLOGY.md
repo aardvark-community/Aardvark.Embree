@@ -14,6 +14,7 @@ Use it alongside the diagnostics tests under `src/Aardvark.Embree.Tests/Diagnost
 ## 3) Validate struct layouts
 - Run the struct layout tests (e.g. `StructSize*`, `Alignment*`) to confirm packing/size.
 - Compare against Embree headers in `include/embree4`.
+- On macOS Intel, heap-allocated `RTCRayHit` must be 32-byte aligned. Use `EmbreeMemory.AllocRayHit` for heap allocations.
 
 ## 4) Validate buffers and formats
 - Confirm buffer type, format, stride, and item counts match Embree expectations.

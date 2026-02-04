@@ -65,6 +65,11 @@ jobs:
         cat test_output_heap_aligned16_nocleanup.txt
         echo "HeapAligned NoCleanup exit code: $HEAP_ALIGNED_NOCLEANUP_EXIT_CODE"
 
+        dotnet test src/Aardvark.Embree.Diagnostics.Tests/Aardvark.Embree.Diagnostics.Tests.csproj --no-build --configuration Debug --logger "console;verbosity=detailed" --filter "FullyQualifiedName~DirectInstanceIntersect_HeapAligned16_SkipInstanceRelease" > test_output_heap_aligned16_skip_instance.txt 2>&1
+        HEAP_ALIGNED_SKIP_INSTANCE_EXIT_CODE=$?
+        cat test_output_heap_aligned16_skip_instance.txt
+        echo "HeapAligned SkipInstanceRelease exit code: $HEAP_ALIGNED_SKIP_INSTANCE_EXIT_CODE"
+
         dotnet test src/Aardvark.Embree.Diagnostics.Tests/Aardvark.Embree.Diagnostics.Tests.csproj --no-build --configuration Debug --logger "console;verbosity=detailed" --filter "FullyQualifiedName~DirectInstanceIntersect_HeapAligned32" > test_output_heap_aligned32.txt 2>&1
         HEAP_ALIGNED32_EXIT_CODE=$?
         cat test_output_heap_aligned32.txt

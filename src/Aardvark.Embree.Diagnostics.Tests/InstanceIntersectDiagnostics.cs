@@ -88,6 +88,16 @@ public class InstanceIntersectDiagnostics
     }
 
     [Fact]
+    public unsafe void DirectInstanceIntersect_HeapAligned16_SkipInstanceRelease()
+    {
+        if (!RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            return;
+
+        Console.WriteLine("=== DirectInstanceIntersect_HeapAligned16_SkipInstanceRelease ===");
+        RunDirectInstanceIntersect(AllocationMode.HeapAligned16, CleanupMode.SkipInstanceRelease);
+    }
+
+    [Fact]
     public unsafe void WrapperInstanceIntersect()
     {
         if (!RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
@@ -137,6 +147,7 @@ public class InstanceIntersectDiagnostics
     {
         None,
         Full,
+        SkipInstanceRelease,
     }
 
     private static unsafe void RunDirectInstanceIntersect(AllocationMode allocationMode, CleanupMode cleanupMode)
@@ -289,6 +300,17 @@ public class InstanceIntersectDiagnostics
         {
             Console.WriteLine("Cleanup: rtcReleaseGeometry(instance)");
             EmbreeAPI.rtcReleaseGeometry(instance);
+            Console.WriteLine("Cleanup: rtcReleaseGeometry(geom)");
+            EmbreeAPI.rtcReleaseGeometry(geom);
+            Console.WriteLine("Cleanup: rtcReleaseScene(topScene)");
+            EmbreeAPI.rtcReleaseScene(topScene);
+            Console.WriteLine("Cleanup: rtcReleaseScene(sourceScene)");
+            EmbreeAPI.rtcReleaseScene(sourceScene);
+            Console.WriteLine("Cleanup: rtcReleaseDevice(device)");
+            EmbreeAPI.rtcReleaseDevice(device);
+        }
+        else if (cleanupMode == CleanupMode.SkipInstanceRelease)
+        {
             Console.WriteLine("Cleanup: rtcReleaseGeometry(geom)");
             EmbreeAPI.rtcReleaseGeometry(geom);
             Console.WriteLine("Cleanup: rtcReleaseScene(topScene)");
