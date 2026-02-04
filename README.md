@@ -30,9 +30,14 @@ dotnet add package Aardvark.Embree
 - .NET 8.0 SDK or later
 - Windows (x64), Linux (x64), or macOS (x64/ARM64)
 
-### macOS Intel Heap Alignment (Direct P/Invoke)
+### Heap Alignment (Direct P/Invoke)
 
-If you use direct P/Invoke and allocate `RTCRayHit` on the heap, macOS Intel requires **32-byte alignment** to avoid crashes.  
+Embree requires aligned ray/hit buffers for direct P/Invoke calls:
+- `RTCRayHit`: 16-byte aligned on all platforms; macOS Intel uses 32-byte alignment in this wrapper to avoid crashes.
+- `RTCRayHit4`: 16-byte aligned
+- `RTCRayHit8`: 32-byte aligned
+- `RTCRayHit16`: 64-byte aligned
+
 Use the built-in helper:
 
 ```csharp

@@ -43,13 +43,10 @@ public static class EmbreeMemory
     }
 
     /// <summary>
-    /// Validates that a heap-allocated RTCRayHit pointer meets the alignment requirement for the current platform.
+    /// Validates that a heap-allocated RTCRayHit pointer meets the alignment requirement.
     /// </summary>
     public static void ValidateRayHitAlignment(IntPtr rayHitPtr, string context = null)
     {
-        if (!IsMacosIntel())
-            return;
-
         if (rayHitPtr == IntPtr.Zero)
             throw new ArgumentNullException(nameof(rayHitPtr));
 
@@ -62,6 +59,30 @@ public static class EmbreeMemory
                 $"RTCRayHit heap pointer must be {alignment}-byte aligned on this platform{location}. " +
                 "Use EmbreeMemory.AllocRayHit or ensure manual alignment.");
         }
+    }
+
+    /// <summary>
+    /// Validates that a heap-allocated RTCRayHit4 pointer meets the 16-byte alignment requirement.
+    /// </summary>
+    public static void ValidateRayHit4Alignment(IntPtr rayHitPtr, string context = null)
+    {
+        ValidateAlignment(rayHitPtr, 16, context);
+    }
+
+    /// <summary>
+    /// Validates that a heap-allocated RTCRayHit8 pointer meets the 32-byte alignment requirement.
+    /// </summary>
+    public static void ValidateRayHit8Alignment(IntPtr rayHitPtr, string context = null)
+    {
+        ValidateAlignment(rayHitPtr, 32, context);
+    }
+
+    /// <summary>
+    /// Validates that a heap-allocated RTCRayHit16 pointer meets the 64-byte alignment requirement.
+    /// </summary>
+    public static void ValidateRayHit16Alignment(IntPtr rayHitPtr, string context = null)
+    {
+        ValidateAlignment(rayHitPtr, 64, context);
     }
 
     private static nuint GetRayHitAlignment()
@@ -78,6 +99,21 @@ public static class EmbreeMemory
     {
         return RuntimeInformation.IsOSPlatform(OSPlatform.OSX) &&
                RuntimeInformation.ProcessArchitecture == Architecture.X64;
+    }
+
+    private static void ValidateAlignment(IntPtr ptr, int alignment, string context)
+    {
+        if (ptr == IntPtr.Zero)
+            throw new ArgumentNullException(nameof(ptr));
+
+        var address = (ulong)ptr.ToInt64();
+        if (address % (ulong)alignment != 0)
+        {
+            var location = string.IsNullOrWhiteSpace(context) ? string.Empty : $" ({context})";
+            throw new InvalidOperationException(
+                $"Pointer must be {alignment}-byte aligned on this platform{location}. " +
+                "Use an aligned allocator or ensure manual alignment.");
+        }
     }
 
     private static nuint RoundUpToAlignment(nuint size, nuint alignment)
