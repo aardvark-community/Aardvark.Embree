@@ -22,6 +22,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aardvark.Embree.Tests", "Aa
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aardvark.Embree.Examples", "Aardvark.Embree.Examples\Aardvark.Embree.Examples.csproj", "{EA4E9C0F-F0DF-4ACD-A201-9D1BA0263C9F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aardvark.Embree.Diagnostics.Tests", "Aardvark.Embree.Diagnostics.Tests\Aardvark.Embree.Diagnostics.Tests.csproj", "{1E392448-8878-443B-BAC7-E90EB8BC28DA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -40,6 +42,10 @@ Global
 		{EA4E9C0F-F0DF-4ACD-A201-9D1BA0263C9F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EA4E9C0F-F0DF-4ACD-A201-9D1BA0263C9F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EA4E9C0F-F0DF-4ACD-A201-9D1BA0263C9F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1E392448-8878-443B-BAC7-E90EB8BC28DA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1E392448-8878-443B-BAC7-E90EB8BC28DA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1E392448-8878-443B-BAC7-E90EB8BC28DA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1E392448-8878-443B-BAC7-E90EB8BC28DA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

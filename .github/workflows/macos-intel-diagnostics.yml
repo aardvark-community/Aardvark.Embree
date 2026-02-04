@@ -1,0 +1,52 @@
+name: macOS Intel Diagnostics
+
+on:
+  push:
+    paths-ignore:
+    - 'README.md'
+    - 'docs/'
+  pull_request:
+    paths-ignore:
+    - 'README.md'
+    - 'docs/'
+
+jobs:
+  diagnostics:
+    runs-on: macos-15-intel
+    continue-on-error: true
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        lfs: true
+    - name: Verify native libraries
+      run: |
+        ls -lh libs/Native/Aardvark.Embree/mac/AMD64/
+        file libs/Native/Aardvark.Embree/mac/AMD64/libembree4.dylib
+        otool -L libs/Native/Aardvark.Embree/mac/AMD64/libembree4.dylib
+        uname -m
+    - name: Install Dotnet
+      uses: actions/setup-dotnet@v4
+      with:
+        global-json-file: global.json
+    - name: Restore Tools
+      run: dotnet tool restore
+    - name: Restore Dependencies
+      run: dotnet paket restore
+    - name: Build Diagnostics
+      run: dotnet build src/Aardvark.Embree.Diagnostics.Tests/Aardvark.Embree.Diagnostics.Tests.csproj --configuration Debug
+    - name: Run Diagnostics Tests
+      run: |
+        set +e
+        dotnet test src/Aardvark.Embree.Diagnostics.Tests/Aardvark.Embree.Diagnostics.Tests.csproj --no-build --configuration Debug --logger "console;verbosity=detailed" > test_output.txt 2>&1
+        TEST_EXIT_CODE=$?
+        cat test_output.txt
+        echo "Diagnostics exit code: $TEST_EXIT_CODE"
+
+        dotnet test src/Aardvark.Embree.Tests/Aardvark.Embree.Tests.csproj --no-build --configuration Debug --logger "console;verbosity=detailed" --filter "FullyQualifiedName~DirectInstanceTestHeapAlloc" > test_output_heap.txt 2>&1
+        HEAP_EXIT_CODE=$?
+        cat test_output_heap.txt
+        echo "HeapAlloc test exit code: $HEAP_EXIT_CODE"
+        exit 0
+      env:
+        DYLD_LIBRARY_PATH: ${{ github.workspace }}/libs/Native/Aardvark.Embree/mac/AMD64:$DYLD_LIBRARY_PATH

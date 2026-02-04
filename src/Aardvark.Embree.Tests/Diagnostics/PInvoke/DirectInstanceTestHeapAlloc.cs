@@ -33,15 +33,25 @@ namespace Aardvark.Embree.Tests;
 /// </summary>
 public class DirectInstanceTestHeapAlloc
 {
+    private static void LogDeviceError(IntPtr device, string label)
+    {
+        var err = EmbreeAPI.rtcGetDeviceError(device);
+        var detailPtr = EmbreeAPI.rtcGetDeviceLastErrorMessage(device);
+        var detail = detailPtr != IntPtr.Zero ? Marshal.PtrToStringAnsi(detailPtr) : null;
+
+        Console.WriteLine($"[{label}] DeviceError={err}");
+        if (!string.IsNullOrWhiteSpace(detail))
+            Console.WriteLine($"[{label}] ErrorDetail={detail}");
+    }
+
     [Fact]
     public void DirectPInvoke_InstanceGeometry_HeapAllocated()
     {
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX) && RuntimeInformation.OSArchitecture == Architecture.X64)
-            return;
-
         Console.WriteLine("=== Direct P/Invoke Instance Test (Heap Allocated) ===");
 
         IntPtr device = EmbreeAPI.rtcNewDevice(null);
+        var version = (int)EmbreeAPI.rtcGetDeviceProperty(device, RTCDeviceProperty.Version);
+        Console.WriteLine($"Embree Version: {version}");
         IntPtr sourceScene = EmbreeAPI.rtcNewScene(device);
         IntPtr geom = EmbreeAPI.rtcNewGeometry(device, RTCGeometryType.Triangle);
 
@@ -66,24 +76,32 @@ public class DirectInstanceTestHeapAlloc
             indices[0] = 0; indices[1] = 1; indices[2] = 2;
 
             EmbreeAPI.rtcCommitGeometry(geom);
+            LogDeviceError(device, "after rtcCommitGeometry");
             EmbreeAPI.rtcAttachGeometry(sourceScene, geom);
+            LogDeviceError(device, "after rtcAttachGeometry(sourceScene)");
             EmbreeAPI.rtcCommitScene(sourceScene);
+            LogDeviceError(device, "after rtcCommitScene(sourceScene)");
 
             // Create instance
             IntPtr instance = EmbreeAPI.rtcNewGeometry(device, RTCGeometryType.Instance);
             EmbreeAPI.rtcSetGeometryInstancedScene(instance, sourceScene);
             EmbreeAPI.rtcSetGeometryTimeStepCount(instance, 1);
+            LogDeviceError(device, "after instance setup");
 
             float* transform = stackalloc float[12];
             transform[0] = 1.0f; transform[1] = 0.0f; transform[2] = 0.0f; transform[3] = 0.0f;
             transform[4] = 0.0f; transform[5] = 1.0f; transform[6] = 0.0f; transform[7] = 0.0f;
             transform[8] = 0.0f; transform[9] = 0.0f; transform[10] = 1.0f; transform[11] = 0.0f;
             EmbreeAPI.rtcSetGeometryTransform(instance, 0, RTCFormat.FLOAT3X4_ROW_MAJOR, (IntPtr)transform);
+            LogDeviceError(device, "after rtcSetGeometryTransform(instance)");
             EmbreeAPI.rtcCommitGeometry(instance);
+            LogDeviceError(device, "after rtcCommitGeometry(instance)");
 
             IntPtr topScene = EmbreeAPI.rtcNewScene(device);
             EmbreeAPI.rtcAttachGeometry(topScene, instance);
+            LogDeviceError(device, "after rtcAttachGeometry(topScene)");
             EmbreeAPI.rtcCommitScene(topScene);
+            LogDeviceError(device, "after rtcCommitScene(topScene)");
 
             // HEAP ALLOCATE RTCRayHit
             IntPtr rayhitPtr = Marshal.AllocHGlobal(Marshal.SizeOf<RTCRayHit>());
@@ -104,6 +122,9 @@ public class DirectInstanceTestHeapAlloc
 
                 Console.WriteLine($"Ray: origin=({rayhit->ray.org}), direction=({rayhit->ray.dir})");
                 Console.WriteLine($"rayhit allocated at: 0x{((long)rayhit):X}");
+                Console.WriteLine($"Before rtcIntersect1: tnear={rayhit->ray.tnear}, tfar={rayhit->ray.tfar}, time={rayhit->ray.time}, mask={rayhit->ray.mask}, flags={rayhit->ray.flags}");
+                Console.WriteLine($"Before rtcIntersect1: geomID={rayhit->hit.geomID}, primID={rayhit->hit.primID}, instID={rayhit->hit.instID_0}");
+                LogDeviceError(device, "before rtcIntersect1");
 
                 RTCIntersectArguments args = new RTCIntersectArguments
                 {
@@ -117,6 +138,8 @@ public class DirectInstanceTestHeapAlloc
                 Console.WriteLine("Calling rtcIntersect1...");
                 EmbreeAPI.rtcIntersect1(topScene, rayhit, &args);
                 Console.WriteLine("rtcIntersect1 returned");
+                LogDeviceError(device, "after rtcIntersect1");
+                Console.WriteLine($"After rtcIntersect1: tfar={rayhit->ray.tfar}, geomID={rayhit->hit.geomID}, primID={rayhit->hit.primID}, instID={rayhit->hit.instID_0}");
 
                 bool hit = rayhit->hit.geomID != unchecked((uint)-1);
                 Console.WriteLine($"Hit: {hit}, geomID: {rayhit->hit.geomID}, tfar: {rayhit->ray.tfar}");
