@@ -76,13 +76,22 @@ public static class Collision
             radius = float.IsPositiveInfinity(maxRadius) ? 1e30f : maxRadius
         };
 
-        // Initialize context
-        RTCPointQueryContext context = default;
-        context.instID = unchecked((uint)-1); // RTC_INVALID_GEOMETRY_ID
-        context.instStackSize = 0;
-
         var callbackPtr = Marshal.GetFunctionPointerForDelegate(callback);
-        return EmbreeAPI.rtcPointQuery(scene.Handle, &query, &context, callbackPtr, userPtr);
+        const int alignment = 16;
+        var queryBuffer = stackalloc byte[sizeof(RTCPointQuery) + (alignment - 1)];
+        var contextBuffer = stackalloc byte[sizeof(RTCPointQueryContext) + (alignment - 1)];
+
+        RTCPointQuery* queryPtr = (RTCPointQuery*)(((long)(queryBuffer) + (alignment - 1)) & ~(alignment - 1));
+        RTCPointQueryContext* contextPtr = (RTCPointQueryContext*)(((long)(contextBuffer) + (alignment - 1)) & ~(alignment - 1));
+
+        *queryPtr = query;
+        contextPtr->instID = unchecked((uint)-1); // RTC_INVALID_GEOMETRY_ID
+        contextPtr->instStackSize = 0;
+
+        EmbreeMemory.ValidatePointQueryAlignment((IntPtr)queryPtr, "Collision.PointQuery");
+        EmbreeMemory.ValidatePointQueryContextAlignment((IntPtr)contextPtr, "Collision.PointQuery");
+
+        return EmbreeAPI.rtcPointQuery(scene.Handle, queryPtr, contextPtr, callbackPtr, userPtr);
     }
 
     /// <summary>
@@ -127,14 +136,24 @@ public static class Collision
         for (int i = 0; i < 4; i++)
             valid[i] = -1; // All valid
 
-        RTCPointQueryContext context = default;
-        context.instID = unchecked((uint)-1);
-        context.instStackSize = 0;
+        const int alignment = 16;
+        var queryBuffer = stackalloc byte[sizeof(RTCPointQuery4) + (alignment - 1)];
+        var contextBuffer = stackalloc byte[sizeof(RTCPointQueryContext) + (alignment - 1)];
+
+        RTCPointQuery4* queryPtr = (RTCPointQuery4*)(((long)(queryBuffer) + (alignment - 1)) & ~(alignment - 1));
+        RTCPointQueryContext* contextPtr = (RTCPointQueryContext*)(((long)(contextBuffer) + (alignment - 1)) & ~(alignment - 1));
+
+        *queryPtr = query;
+        contextPtr->instID = unchecked((uint)-1);
+        contextPtr->instStackSize = 0;
+
+        EmbreeMemory.ValidatePointQuery4Alignment((IntPtr)queryPtr, "Collision.PointQuery4");
+        EmbreeMemory.ValidatePointQueryContextAlignment((IntPtr)contextPtr, "Collision.PointQuery4");
 
         var callbackPtr = Marshal.GetFunctionPointerForDelegate(callback);
         fixed (IntPtr* pUserPtrs = userPtrs)
         {
-            return EmbreeAPI.rtcPointQuery4(valid, scene.Handle, &query, &context, callbackPtr, pUserPtrs);
+            return EmbreeAPI.rtcPointQuery4(valid, scene.Handle, queryPtr, contextPtr, callbackPtr, pUserPtrs);
         }
     }
 

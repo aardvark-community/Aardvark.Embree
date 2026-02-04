@@ -57,4 +57,62 @@ public class EmbreeMemoryValidationTests
             Marshal.FreeHGlobal(raw);
         }
     }
+
+    [Fact]
+    public void ValidatePointQueryAlignments_ThrowOnMisalignedPointer()
+    {
+        IntPtr raw = Marshal.AllocHGlobal(256);
+        try
+        {
+            var misaligned = IntPtr.Add(raw, 1);
+            Assert.Throws<InvalidOperationException>(() =>
+                EmbreeMemory.ValidatePointQueryAlignment(misaligned, "pq"));
+            Assert.Throws<InvalidOperationException>(() =>
+                EmbreeMemory.ValidatePointQuery4Alignment(misaligned, "pq4"));
+            Assert.Throws<InvalidOperationException>(() =>
+                EmbreeMemory.ValidatePointQuery8Alignment(misaligned, "pq8"));
+            Assert.Throws<InvalidOperationException>(() =>
+                EmbreeMemory.ValidatePointQuery16Alignment(misaligned, "pq16"));
+            Assert.Throws<InvalidOperationException>(() =>
+                EmbreeMemory.ValidatePointQueryContextAlignment(misaligned, "pqctx"));
+        }
+        finally
+        {
+            Marshal.FreeHGlobal(raw);
+        }
+    }
+
+    [Fact]
+    public void ValidateBoundsAlignments_ThrowOnMisalignedPointer()
+    {
+        IntPtr raw = Marshal.AllocHGlobal(256);
+        try
+        {
+            var misaligned = IntPtr.Add(raw, 1);
+            Assert.Throws<InvalidOperationException>(() =>
+                EmbreeMemory.ValidateBoundsAlignment(misaligned, "bounds"));
+            Assert.Throws<InvalidOperationException>(() =>
+                EmbreeMemory.ValidateLinearBoundsAlignment(misaligned, "linear"));
+        }
+        finally
+        {
+            Marshal.FreeHGlobal(raw);
+        }
+    }
+
+    [Fact]
+    public void ValidateBuildPrimitiveAlignment_ThrowsOnMisalignedPointer()
+    {
+        IntPtr raw = Marshal.AllocHGlobal(256);
+        try
+        {
+            var misaligned = IntPtr.Add(raw, 1);
+            Assert.Throws<InvalidOperationException>(() =>
+                EmbreeMemory.ValidateBuildPrimitiveAlignment(misaligned, "prims"));
+        }
+        finally
+        {
+            Marshal.FreeHGlobal(raw);
+        }
+    }
 }

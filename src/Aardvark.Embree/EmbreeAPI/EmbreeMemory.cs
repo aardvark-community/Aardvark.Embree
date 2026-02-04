@@ -66,7 +66,7 @@ public static class EmbreeMemory
     /// </summary>
     public static void ValidateRayHit4Alignment(IntPtr rayHitPtr, string context = null)
     {
-        ValidateAlignment(rayHitPtr, 16, context);
+        ValidateAlignment(rayHitPtr, 16, "RTCRayHit4", context);
     }
 
     /// <summary>
@@ -74,7 +74,7 @@ public static class EmbreeMemory
     /// </summary>
     public static void ValidateRayHit8Alignment(IntPtr rayHitPtr, string context = null)
     {
-        ValidateAlignment(rayHitPtr, 32, context);
+        ValidateAlignment(rayHitPtr, 32, "RTCRayHit8", context);
     }
 
     /// <summary>
@@ -82,7 +82,71 @@ public static class EmbreeMemory
     /// </summary>
     public static void ValidateRayHit16Alignment(IntPtr rayHitPtr, string context = null)
     {
-        ValidateAlignment(rayHitPtr, 64, context);
+        ValidateAlignment(rayHitPtr, 64, "RTCRayHit16", context);
+    }
+
+    /// <summary>
+    /// Validates that a heap-allocated RTCPointQuery pointer meets the 16-byte alignment requirement.
+    /// </summary>
+    public static void ValidatePointQueryAlignment(IntPtr queryPtr, string context = null)
+    {
+        ValidateAlignment(queryPtr, 16, "RTCPointQuery", context);
+    }
+
+    /// <summary>
+    /// Validates that a heap-allocated RTCPointQuery4 pointer meets the 16-byte alignment requirement.
+    /// </summary>
+    public static void ValidatePointQuery4Alignment(IntPtr queryPtr, string context = null)
+    {
+        ValidateAlignment(queryPtr, 16, "RTCPointQuery4", context);
+    }
+
+    /// <summary>
+    /// Validates that a heap-allocated RTCPointQuery8 pointer meets the 32-byte alignment requirement.
+    /// </summary>
+    public static void ValidatePointQuery8Alignment(IntPtr queryPtr, string context = null)
+    {
+        ValidateAlignment(queryPtr, 32, "RTCPointQuery8", context);
+    }
+
+    /// <summary>
+    /// Validates that a heap-allocated RTCPointQuery16 pointer meets the 64-byte alignment requirement.
+    /// </summary>
+    public static void ValidatePointQuery16Alignment(IntPtr queryPtr, string context = null)
+    {
+        ValidateAlignment(queryPtr, 64, "RTCPointQuery16", context);
+    }
+
+    /// <summary>
+    /// Validates that a heap-allocated RTCPointQueryContext pointer meets the 16-byte alignment requirement.
+    /// </summary>
+    public static void ValidatePointQueryContextAlignment(IntPtr contextPtr, string context = null)
+    {
+        ValidateAlignment(contextPtr, 16, "RTCPointQueryContext", context);
+    }
+
+    /// <summary>
+    /// Validates that a heap-allocated RTCBounds pointer meets the 16-byte alignment requirement.
+    /// </summary>
+    public static void ValidateBoundsAlignment(IntPtr boundsPtr, string context = null)
+    {
+        ValidateAlignment(boundsPtr, 16, "RTCBounds", context);
+    }
+
+    /// <summary>
+    /// Validates that a heap-allocated RTCLinearBounds pointer meets the 16-byte alignment requirement.
+    /// </summary>
+    public static void ValidateLinearBoundsAlignment(IntPtr boundsPtr, string context = null)
+    {
+        ValidateAlignment(boundsPtr, 16, "RTCLinearBounds", context);
+    }
+
+    /// <summary>
+    /// Validates that a heap-allocated RTCBuildPrimitive pointer meets the 32-byte alignment requirement.
+    /// </summary>
+    public static void ValidateBuildPrimitiveAlignment(IntPtr primitivesPtr, string context = null)
+    {
+        ValidateAlignment(primitivesPtr, 32, "RTCBuildPrimitive", context);
     }
 
     private static nuint GetRayHitAlignment()
@@ -101,7 +165,7 @@ public static class EmbreeMemory
                RuntimeInformation.ProcessArchitecture == Architecture.X64;
     }
 
-    private static void ValidateAlignment(IntPtr ptr, int alignment, string context)
+    private static void ValidateAlignment(IntPtr ptr, int alignment, string typeName, string context)
     {
         if (ptr == IntPtr.Zero)
             throw new ArgumentNullException(nameof(ptr));
@@ -111,7 +175,7 @@ public static class EmbreeMemory
         {
             var location = string.IsNullOrWhiteSpace(context) ? string.Empty : $" ({context})";
             throw new InvalidOperationException(
-                $"Pointer must be {alignment}-byte aligned on this platform{location}. " +
+                $"{typeName} pointer must be {alignment}-byte aligned on this platform{location}. " +
                 "Use an aligned allocator or ensure manual alignment.");
         }
     }

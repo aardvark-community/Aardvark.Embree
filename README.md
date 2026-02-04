@@ -37,6 +37,10 @@ Embree requires aligned ray/hit buffers for direct P/Invoke calls:
 - `RTCRayHit4`: 16-byte aligned
 - `RTCRayHit8`: 32-byte aligned
 - `RTCRayHit16`: 64-byte aligned
+- `RTCPointQuery` / `RTCPointQueryContext`: 16-byte aligned
+- `RTCPointQuery8`: 32-byte aligned
+- `RTCPointQuery16`: 64-byte aligned
+- `RTCBuildPrimitive`: 32-byte aligned (BVH builder primitives)
 
 Use the built-in helper:
 

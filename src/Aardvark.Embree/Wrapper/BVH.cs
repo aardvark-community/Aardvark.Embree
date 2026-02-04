@@ -58,6 +58,9 @@ public class BVH : IDisposable
         if (args == null)
             throw new ArgumentNullException(nameof(args));
 
+        if (args->primitives != null)
+            EmbreeMemory.ValidateBuildPrimitiveAlignment((IntPtr)args->primitives, "BVH.Build");
+
         return EmbreeAPI.rtcBuildBVH(args);
     }
 
@@ -74,6 +77,9 @@ public class BVH : IDisposable
 
         fixed (RTCBuildArguments* pArgs = &args)
         {
+            if (pArgs->primitives != null)
+                EmbreeMemory.ValidateBuildPrimitiveAlignment((IntPtr)pArgs->primitives, "BVH.Build");
+
             return EmbreeAPI.rtcBuildBVH(pArgs);
         }
     }

@@ -69,12 +69,23 @@ public unsafe partial class Scene
             radius = float.IsPositiveInfinity(maxRadius) ? 1e30f : maxRadius
         };
 
+        const int alignment = 16;
+        var queryBuffer = stackalloc byte[sizeof(RTCPointQuery) + (alignment - 1)];
+        var contextBuffer = stackalloc byte[sizeof(RTCPointQueryContext) + (alignment - 1)];
+
+        RTCPointQuery* pq = (RTCPointQuery*)(((long)(queryBuffer) + (alignment - 1)) & ~(alignment - 1));
+        RTCPointQueryContext* ctx = (RTCPointQueryContext*)(((long)(contextBuffer) + (alignment - 1)) & ~(alignment - 1));
+
+        *pq = q;
+
         // NOTE: rtcInitPointQueryContext is an inline method -> do manually
-        RTCPointQueryContext* ctx = stackalloc RTCPointQueryContext[1];
         ctx->instID = RTC_INVALID_GEOMETRY_ID;   // need to be initialized with RTC_INVALID_GEOMETRY_ID
         ctx->instStackSize = 0;
         // NOTE: inline rtcInitPointQueryContext does not initialize matrices
         // ctx->inst2world and ctx->world2inst are undefined when instStackSize == 0
+
+        EmbreeMemory.ValidatePointQueryAlignment((IntPtr)pq, "Scene.GetClosestPoint");
+        EmbreeMemory.ValidatePointQueryContextAlignment((IntPtr)ctx, "Scene.GetClosestPoint");
 
         var state = new NearestState(this, queryPoint);
         var gch = GCHandle.Alloc(state, GCHandleType.Normal);
@@ -90,10 +101,6 @@ public unsafe partial class Scene
 
             // Store callback in thread-local storage for instance geometries to access
             t_currentPointQueryCallback = callbackPtr;
-
-            // stackalloc ensures 16B alignment of RTCPointQuery on x64
-            RTCPointQuery* pq = stackalloc RTCPointQuery[1];
-            *pq = q;
 
             EmbreeAPI.rtcPointQuery(Handle, pq, ctx, callbackPtr, (IntPtr)gch);
 

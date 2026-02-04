@@ -14,7 +14,7 @@ Use it alongside the diagnostics tests under `src/Aardvark.Embree.Tests/Diagnost
 ## 3) Validate struct layouts
 - Run the struct layout tests (e.g. `StructSize*`, `Alignment*`) to confirm packing/size.
 - Compare against Embree headers in `include/embree4`.
-- Heap-allocated ray/hit structs must be aligned to Embree requirements. Use `EmbreeMemory.AllocRayHit` and `EmbreeMemory.ValidateRayHitAlignment` for `RTCRayHit`. For ray packets, use `ValidateRayHit4Alignment`, `ValidateRayHit8Alignment`, and `ValidateRayHit16Alignment`.
+- Heap-allocated Embree structs must be aligned to Embree requirements. Use `EmbreeMemory.AllocRayHit` and `EmbreeMemory.ValidateRayHitAlignment` for `RTCRayHit`. For ray packets, use `ValidateRayHit4Alignment`, `ValidateRayHit8Alignment`, and `ValidateRayHit16Alignment`. For point queries and BVH primitives, use `ValidatePointQuery*Alignment` and `ValidateBuildPrimitiveAlignment`.
 
 ## 4) Validate buffers and formats
 - Confirm buffer type, format, stride, and item counts match Embree expectations.
