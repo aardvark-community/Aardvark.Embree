@@ -14,7 +14,7 @@ public class InstanceIntersectDiagnostics
             return;
 
         Console.WriteLine("=== DirectInstanceIntersect_HeapAllocated ===");
-        RunDirectInstanceIntersect(heapAllocate: true);
+        RunDirectInstanceIntersect(AllocationMode.HeapUnaligned, CleanupMode.Full);
     }
 
     [Fact]
@@ -24,7 +24,27 @@ public class InstanceIntersectDiagnostics
             return;
 
         Console.WriteLine("=== DirectInstanceIntersect_StackAllocated ===");
-        RunDirectInstanceIntersect(heapAllocate: false);
+        RunDirectInstanceIntersect(AllocationMode.StackAligned, CleanupMode.Full);
+    }
+
+    [Fact]
+    public unsafe void DirectInstanceIntersect_HeapAligned()
+    {
+        if (!RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            return;
+
+        Console.WriteLine("=== DirectInstanceIntersect_HeapAligned ===");
+        RunDirectInstanceIntersect(AllocationMode.HeapAligned, CleanupMode.Full);
+    }
+
+    [Fact]
+    public unsafe void DirectInstanceIntersect_HeapAligned_NoCleanup()
+    {
+        if (!RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            return;
+
+        Console.WriteLine("=== DirectInstanceIntersect_HeapAligned_NoCleanup ===");
+        RunDirectInstanceIntersect(AllocationMode.HeapAligned, CleanupMode.None);
     }
 
     [Fact]
@@ -64,7 +84,20 @@ public class InstanceIntersectDiagnostics
         Assert.InRange(hit.T, 0.99f, 1.01f);
     }
 
-    private static unsafe void RunDirectInstanceIntersect(bool heapAllocate)
+    private enum AllocationMode
+    {
+        StackAligned,
+        HeapUnaligned,
+        HeapAligned,
+    }
+
+    private enum CleanupMode
+    {
+        None,
+        Full,
+    }
+
+    private static unsafe void RunDirectInstanceIntersect(AllocationMode allocationMode, CleanupMode cleanupMode)
     {
         IntPtr device = EmbreeAPI.rtcNewDevice(null);
         var version = (int)EmbreeAPI.rtcGetDeviceProperty(device, RTCDeviceProperty.Version);
@@ -121,12 +154,21 @@ public class InstanceIntersectDiagnostics
 
         RTCRayHit* rayhit;
         IntPtr rayhitPtr = IntPtr.Zero;
+        void* alignedPtrRaw = null;
         try
         {
-            if (heapAllocate)
+            if (allocationMode == AllocationMode.HeapUnaligned)
             {
                 rayhitPtr = Marshal.AllocHGlobal(Marshal.SizeOf<RTCRayHit>());
                 rayhit = (RTCRayHit*)rayhitPtr;
+            }
+            else if (allocationMode == AllocationMode.HeapAligned)
+            {
+                var size = (nuint)Marshal.SizeOf<RTCRayHit>();
+                alignedPtrRaw = NativeMemory.AlignedAlloc(size, 16);
+                if (alignedPtrRaw == null)
+                    throw new InvalidOperationException("AlignedAlloc returned null.");
+                rayhit = (RTCRayHit*)alignedPtrRaw;
             }
             else
             {
@@ -175,14 +217,23 @@ public class InstanceIntersectDiagnostics
         {
             if (rayhitPtr != IntPtr.Zero)
                 Marshal.FreeHGlobal(rayhitPtr);
+            if (alignedPtrRaw != null)
+                NativeMemory.AlignedFree(alignedPtrRaw);
         }
 
-        // Cleanup
-        EmbreeAPI.rtcReleaseGeometry(instance);
-        EmbreeAPI.rtcReleaseGeometry(geom);
-        EmbreeAPI.rtcReleaseScene(topScene);
-        EmbreeAPI.rtcReleaseScene(sourceScene);
-        EmbreeAPI.rtcReleaseDevice(device);
+        if (cleanupMode == CleanupMode.Full)
+        {
+            Console.WriteLine("Cleanup: rtcReleaseGeometry(instance)");
+            EmbreeAPI.rtcReleaseGeometry(instance);
+            Console.WriteLine("Cleanup: rtcReleaseGeometry(geom)");
+            EmbreeAPI.rtcReleaseGeometry(geom);
+            Console.WriteLine("Cleanup: rtcReleaseScene(topScene)");
+            EmbreeAPI.rtcReleaseScene(topScene);
+            Console.WriteLine("Cleanup: rtcReleaseScene(sourceScene)");
+            EmbreeAPI.rtcReleaseScene(sourceScene);
+            Console.WriteLine("Cleanup: rtcReleaseDevice(device)");
+            EmbreeAPI.rtcReleaseDevice(device);
+        }
     }
 
     private static void LogDeviceError(IntPtr device, string label)
