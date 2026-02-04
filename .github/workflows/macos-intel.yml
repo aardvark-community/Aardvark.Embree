@@ -1,7 +1,14 @@
 name: macOS Intel (15)
 
 on:
-  workflow_dispatch:
+  push:
+    paths-ignore:
+    - 'README.md'
+    - 'docs/'
+  pull_request:
+    paths-ignore:
+    - 'README.md'
+    - 'docs/'
 
 jobs:
   build:
