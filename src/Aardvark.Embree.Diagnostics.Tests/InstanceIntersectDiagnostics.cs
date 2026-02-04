@@ -28,23 +28,43 @@ public class InstanceIntersectDiagnostics
     }
 
     [Fact]
-    public unsafe void DirectInstanceIntersect_HeapAligned()
+    public unsafe void DirectInstanceIntersect_HeapAligned16()
     {
         if (!RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
             return;
 
-        Console.WriteLine("=== DirectInstanceIntersect_HeapAligned ===");
-        RunDirectInstanceIntersect(AllocationMode.HeapAligned, CleanupMode.Full);
+        Console.WriteLine("=== DirectInstanceIntersect_HeapAligned16 ===");
+        RunDirectInstanceIntersect(AllocationMode.HeapAligned16, CleanupMode.Full);
     }
 
     [Fact]
-    public unsafe void DirectInstanceIntersect_HeapAligned_NoCleanup()
+    public unsafe void DirectInstanceIntersect_HeapAligned16_NoCleanup()
     {
         if (!RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
             return;
 
-        Console.WriteLine("=== DirectInstanceIntersect_HeapAligned_NoCleanup ===");
-        RunDirectInstanceIntersect(AllocationMode.HeapAligned, CleanupMode.None);
+        Console.WriteLine("=== DirectInstanceIntersect_HeapAligned16_NoCleanup ===");
+        RunDirectInstanceIntersect(AllocationMode.HeapAligned16, CleanupMode.None);
+    }
+
+    [Fact]
+    public unsafe void DirectInstanceIntersect_HeapAligned64()
+    {
+        if (!RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            return;
+
+        Console.WriteLine("=== DirectInstanceIntersect_HeapAligned64 ===");
+        RunDirectInstanceIntersect(AllocationMode.HeapAligned64, CleanupMode.Full);
+    }
+
+    [Fact]
+    public unsafe void DirectInstanceIntersect_HeapAligned64_NoCleanup()
+    {
+        if (!RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            return;
+
+        Console.WriteLine("=== DirectInstanceIntersect_HeapAligned64_NoCleanup ===");
+        RunDirectInstanceIntersect(AllocationMode.HeapAligned64, CleanupMode.None);
     }
 
     [Fact]
@@ -88,7 +108,8 @@ public class InstanceIntersectDiagnostics
     {
         StackAligned,
         HeapUnaligned,
-        HeapAligned,
+        HeapAligned16,
+        HeapAligned64,
     }
 
     private enum CleanupMode
@@ -165,10 +186,11 @@ public class InstanceIntersectDiagnostics
                 rayhitPtr = Marshal.AllocHGlobal(rayHitSize);
                 rayhit = (RTCRayHit*)rayhitPtr;
             }
-            else if (allocationMode == AllocationMode.HeapAligned)
+            else if (allocationMode == AllocationMode.HeapAligned16 || allocationMode == AllocationMode.HeapAligned64)
             {
                 var size = (nuint)rayHitSize;
-                alignedPtrRaw = NativeMemory.AlignedAlloc(size, 16);
+                var alignment = allocationMode == AllocationMode.HeapAligned64 ? 64u : 16u;
+                alignedPtrRaw = NativeMemory.AlignedAlloc(size, alignment);
                 if (alignedPtrRaw == null)
                     throw new InvalidOperationException("AlignedAlloc returned null.");
                 rayhit = (RTCRayHit*)alignedPtrRaw;
@@ -178,6 +200,18 @@ public class InstanceIntersectDiagnostics
                 byte* stackBuffer = stackalloc byte[rayHitSize + 15];
                 IntPtr alignedPtr = new IntPtr(((long)stackBuffer + 15) & ~15L);
                 rayhit = (RTCRayHit*)alignedPtr;
+            }
+
+            var rayhitAlignment = allocationMode switch
+            {
+                AllocationMode.HeapAligned64 => 64u,
+                AllocationMode.HeapAligned16 or AllocationMode.StackAligned => 16u,
+                _ => 0u
+            };
+            if (rayhitAlignment > 0)
+            {
+                var misalignment = (uint)((nuint)rayhit % rayhitAlignment);
+                Console.WriteLine($"rayhit alignment: {rayhitAlignment}-byte, misalignment={misalignment}");
             }
 
             rayhit->ray.org = new V3f(0.25f, 0.25f, 1.0f);
@@ -215,6 +249,7 @@ public class InstanceIntersectDiagnostics
 
             bool hit = rayhit->hit.geomID != unchecked((uint)-1);
             Console.WriteLine($"Hit: {hit}, geomID: {rayhit->hit.geomID}, tfar: {rayhit->ray.tfar}");
+            Console.WriteLine("Completed intersect call.");
         }
         finally
         {
@@ -236,6 +271,10 @@ public class InstanceIntersectDiagnostics
             EmbreeAPI.rtcReleaseScene(sourceScene);
             Console.WriteLine("Cleanup: rtcReleaseDevice(device)");
             EmbreeAPI.rtcReleaseDevice(device);
+        }
+        else
+        {
+            Console.WriteLine("Cleanup skipped.");
         }
     }
 

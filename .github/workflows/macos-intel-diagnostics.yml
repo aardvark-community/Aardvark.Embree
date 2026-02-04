@@ -55,15 +55,25 @@ jobs:
         cat test_output_stack.txt
         echo "StackAlloc test exit code: $STACK_EXIT_CODE"
 
-        dotnet test src/Aardvark.Embree.Diagnostics.Tests/Aardvark.Embree.Diagnostics.Tests.csproj --no-build --configuration Debug --logger "console;verbosity=detailed" --filter "FullyQualifiedName~DirectInstanceIntersect_HeapAligned" > test_output_heap_aligned.txt 2>&1
+        dotnet test src/Aardvark.Embree.Diagnostics.Tests/Aardvark.Embree.Diagnostics.Tests.csproj --no-build --configuration Debug --logger "console;verbosity=detailed" --filter "FullyQualifiedName~DirectInstanceIntersect_HeapAligned16" > test_output_heap_aligned16.txt 2>&1
         HEAP_ALIGNED_EXIT_CODE=$?
-        cat test_output_heap_aligned.txt
+        cat test_output_heap_aligned16.txt
         echo "HeapAligned test exit code: $HEAP_ALIGNED_EXIT_CODE"
 
-        dotnet test src/Aardvark.Embree.Diagnostics.Tests/Aardvark.Embree.Diagnostics.Tests.csproj --no-build --configuration Debug --logger "console;verbosity=detailed" --filter "FullyQualifiedName~DirectInstanceIntersect_HeapAligned_NoCleanup" > test_output_heap_aligned_nocleanup.txt 2>&1
+        dotnet test src/Aardvark.Embree.Diagnostics.Tests/Aardvark.Embree.Diagnostics.Tests.csproj --no-build --configuration Debug --logger "console;verbosity=detailed" --filter "FullyQualifiedName~DirectInstanceIntersect_HeapAligned16_NoCleanup" > test_output_heap_aligned16_nocleanup.txt 2>&1
         HEAP_ALIGNED_NOCLEANUP_EXIT_CODE=$?
-        cat test_output_heap_aligned_nocleanup.txt
+        cat test_output_heap_aligned16_nocleanup.txt
         echo "HeapAligned NoCleanup exit code: $HEAP_ALIGNED_NOCLEANUP_EXIT_CODE"
+
+        dotnet test src/Aardvark.Embree.Diagnostics.Tests/Aardvark.Embree.Diagnostics.Tests.csproj --no-build --configuration Debug --logger "console;verbosity=detailed" --filter "FullyQualifiedName~DirectInstanceIntersect_HeapAligned64" > test_output_heap_aligned64.txt 2>&1
+        HEAP_ALIGNED64_EXIT_CODE=$?
+        cat test_output_heap_aligned64.txt
+        echo "HeapAligned64 test exit code: $HEAP_ALIGNED64_EXIT_CODE"
+
+        dotnet test src/Aardvark.Embree.Diagnostics.Tests/Aardvark.Embree.Diagnostics.Tests.csproj --no-build --configuration Debug --logger "console;verbosity=detailed" --filter "FullyQualifiedName~DirectInstanceIntersect_HeapAligned64_NoCleanup" > test_output_heap_aligned64_nocleanup.txt 2>&1
+        HEAP_ALIGNED64_NOCLEANUP_EXIT_CODE=$?
+        cat test_output_heap_aligned64_nocleanup.txt
+        echo "HeapAligned64 NoCleanup exit code: $HEAP_ALIGNED64_NOCLEANUP_EXIT_CODE"
 
         dotnet test src/Aardvark.Embree.Diagnostics.Tests/Aardvark.Embree.Diagnostics.Tests.csproj --no-build --configuration Debug --logger "console;verbosity=detailed" --filter "FullyQualifiedName~DirectInstanceIntersect_HeapAllocated" > test_output_heap.txt 2>&1
         HEAP_EXIT_CODE=$?
