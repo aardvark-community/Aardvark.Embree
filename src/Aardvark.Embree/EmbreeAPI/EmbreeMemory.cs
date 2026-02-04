@@ -43,7 +43,7 @@ public static class EmbreeMemory
     }
 
     /// <summary>
-    /// Validates that an RTCRayHit pointer meets the alignment requirement for the current platform.
+    /// Validates that a heap-allocated RTCRayHit pointer meets the alignment requirement for the current platform.
     /// </summary>
     public static void ValidateRayHitAlignment(IntPtr rayHitPtr, string context = null)
     {
@@ -56,7 +56,7 @@ public static class EmbreeMemory
         {
             var location = string.IsNullOrWhiteSpace(context) ? string.Empty : $" ({context})";
             throw new InvalidOperationException(
-                $"RTCRayHit pointer must be {alignment}-byte aligned on this platform{location}. " +
+                $"RTCRayHit heap pointer must be {alignment}-byte aligned on this platform{location}. " +
                 "Use EmbreeMemory.AllocRayHit or ensure manual alignment.");
         }
     }

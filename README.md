@@ -30,6 +30,18 @@ dotnet add package Aardvark.Embree
 - .NET 8.0 SDK or later
 - Windows (x64), Linux (x64), or macOS (x64/ARM64)
 
+### macOS Intel Heap Alignment (Direct P/Invoke)
+
+If you use direct P/Invoke and allocate `RTCRayHit` on the heap, macOS Intel requires **32-byte alignment** to avoid crashes.  
+Use the built-in helper:
+
+```csharp
+var ptr = EmbreeMemory.AllocRayHit(out _, out _);
+EmbreeMemory.ValidateRayHitAlignment(ptr, "my direct P/Invoke");
+```
+
+The high-level wrapper (`Scene.Intersect`) already uses safe stack allocations.
+
 ### Your First Ray Trace
 
 Minimal example:
