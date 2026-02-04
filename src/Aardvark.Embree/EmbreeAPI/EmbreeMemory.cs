@@ -47,6 +47,9 @@ public static class EmbreeMemory
     /// </summary>
     public static void ValidateRayHitAlignment(IntPtr rayHitPtr, string context = null)
     {
+        if (!IsMacosIntel())
+            return;
+
         if (rayHitPtr == IntPtr.Zero)
             throw new ArgumentNullException(nameof(rayHitPtr));
 
@@ -63,13 +66,18 @@ public static class EmbreeMemory
 
     private static nuint GetRayHitAlignment()
     {
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX) &&
-            RuntimeInformation.ProcessArchitecture == Architecture.X64)
+        if (IsMacosIntel())
         {
             return 32;
         }
 
         return 16;
+    }
+
+    private static bool IsMacosIntel()
+    {
+        return RuntimeInformation.IsOSPlatform(OSPlatform.OSX) &&
+               RuntimeInformation.ProcessArchitecture == Architecture.X64;
     }
 
     private static nuint RoundUpToAlignment(nuint size, nuint alignment)
