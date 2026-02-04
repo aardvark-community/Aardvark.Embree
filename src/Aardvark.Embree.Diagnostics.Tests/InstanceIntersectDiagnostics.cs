@@ -68,6 +68,26 @@ public class InstanceIntersectDiagnostics
     }
 
     [Fact]
+    public unsafe void DirectInstanceIntersect_HeapAligned32()
+    {
+        if (!RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            return;
+
+        Console.WriteLine("=== DirectInstanceIntersect_HeapAligned32 ===");
+        RunDirectInstanceIntersect(AllocationMode.HeapAligned32, CleanupMode.Full);
+    }
+
+    [Fact]
+    public unsafe void DirectInstanceIntersect_HeapAligned32_NoCleanup()
+    {
+        if (!RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            return;
+
+        Console.WriteLine("=== DirectInstanceIntersect_HeapAligned32_NoCleanup ===");
+        RunDirectInstanceIntersect(AllocationMode.HeapAligned32, CleanupMode.None);
+    }
+
+    [Fact]
     public unsafe void WrapperInstanceIntersect()
     {
         if (!RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
@@ -109,6 +129,7 @@ public class InstanceIntersectDiagnostics
         StackAligned,
         HeapUnaligned,
         HeapAligned16,
+        HeapAligned32,
         HeapAligned64,
     }
 
@@ -186,10 +207,15 @@ public class InstanceIntersectDiagnostics
                 rayhitPtr = Marshal.AllocHGlobal(rayHitSize);
                 rayhit = (RTCRayHit*)rayhitPtr;
             }
-            else if (allocationMode == AllocationMode.HeapAligned16 || allocationMode == AllocationMode.HeapAligned64)
+            else if (allocationMode == AllocationMode.HeapAligned16 || allocationMode == AllocationMode.HeapAligned32 || allocationMode == AllocationMode.HeapAligned64)
             {
-                var size = (nuint)rayHitSize;
-                var alignment = allocationMode == AllocationMode.HeapAligned64 ? 64u : 16u;
+                var alignment = allocationMode switch
+                {
+                    AllocationMode.HeapAligned64 => 64u,
+                    AllocationMode.HeapAligned32 => 32u,
+                    _ => 16u
+                };
+                var size = RoundUpToAlignment((nuint)rayHitSize, alignment);
                 alignedPtrRaw = NativeMemory.AlignedAlloc(size, alignment);
                 if (alignedPtrRaw == null)
                     throw new InvalidOperationException("AlignedAlloc returned null.");
@@ -287,5 +313,11 @@ public class InstanceIntersectDiagnostics
         Console.WriteLine($"[{label}] DeviceError={err}");
         if (!string.IsNullOrWhiteSpace(detail))
             Console.WriteLine($"[{label}] ErrorDetail={detail}");
+    }
+
+    private static nuint RoundUpToAlignment(nuint size, uint alignment)
+    {
+        var mask = (nuint)alignment - 1;
+        return (size + mask) & ~mask;
     }
 }
