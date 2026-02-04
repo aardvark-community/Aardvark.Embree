@@ -16,7 +16,7 @@ Contains direct P/Invoke C# tests that bypass all wrapper classes to isolate int
 
 **Files:**
 - `DirectPInvokeInstanceTest.cs` - Exact C# replica of C++ instance test using direct P/Invoke
-- `DirectInstanceTestHeapAlloc.cs` - Variant using heap allocation to rule out stack alignment issues
+- `DirectInstanceTestHeapAlloc.cs` - Variant using aligned heap allocation to rule out stack alignment issues
 - `MixedPInvokeTest.cs` - Mixed approach combining direct P/Invoke with wrapper classes
 
 ## Purpose
@@ -78,6 +78,7 @@ dotnet test --filter "FullyQualifiedName~Diagnostics.PInvoke"
 - They use **unsafe code and raw pointers** - this is necessary for diagnostic work
 - Keep these tests **synchronized with wrapper API changes** to maintain diagnostic value
 - **Do not refactor** to use wrapper classes - that defeats their purpose
+- On macOS Intel, use `EmbreeMemory.AllocRayHit` for heap-allocated `RTCRayHit` to avoid crashes seen with 16-byte alignment
 
 ## Future Debugging
 
