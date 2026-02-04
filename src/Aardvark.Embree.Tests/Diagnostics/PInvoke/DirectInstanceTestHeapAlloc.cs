@@ -155,14 +155,21 @@ public class DirectInstanceTestHeapAlloc
             }
             finally
             {
+                Console.WriteLine("Freeing rayhit (Marshal.FreeHGlobal)...");
                 Marshal.FreeHGlobal(rayhitPtr);
+                Console.WriteLine("Freed rayhit (Marshal.FreeHGlobal).");
             }
 
             // Cleanup
+            Console.WriteLine("Cleanup: rtcReleaseGeometry(instance)");
             EmbreeAPI.rtcReleaseGeometry(instance);
+            Console.WriteLine("Cleanup: rtcReleaseGeometry(geom)");
             EmbreeAPI.rtcReleaseGeometry(geom);
+            Console.WriteLine("Cleanup: rtcReleaseScene(topScene)");
             EmbreeAPI.rtcReleaseScene(topScene);
+            Console.WriteLine("Cleanup: rtcReleaseScene(sourceScene)");
             EmbreeAPI.rtcReleaseScene(sourceScene);
+            Console.WriteLine("Cleanup: rtcReleaseDevice(device)");
             EmbreeAPI.rtcReleaseDevice(device);
         }
     }

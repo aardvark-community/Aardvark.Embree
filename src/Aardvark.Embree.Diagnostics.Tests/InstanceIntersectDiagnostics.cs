@@ -246,9 +246,17 @@ public class InstanceIntersectDiagnostics
         finally
         {
             if (rayhitPtr != IntPtr.Zero)
+            {
+                Console.WriteLine("Freeing rayhit (Marshal.FreeHGlobal)...");
                 Marshal.FreeHGlobal(rayhitPtr);
+                Console.WriteLine("Freed rayhit (Marshal.FreeHGlobal).");
+            }
             if (alignedPtrRaw != null)
+            {
+                Console.WriteLine("Freeing rayhit (NativeMemory.AlignedFree)...");
                 NativeMemory.AlignedFree(alignedPtrRaw);
+                Console.WriteLine("Freed rayhit (NativeMemory.AlignedFree).");
+            }
         }
 
         if (cleanupMode == CleanupMode.Full)
