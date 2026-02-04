@@ -140,7 +140,7 @@ public class PerformanceOptimizationExample : ExampleBase
 
         Print("Test 1: Using Refit quality");
         Timer.Start("refit");
-        using (var scene = new Scene(Device!, RTCBuildQuality.Refit, dynamic: true))
+        using (var scene = new Scene(Device!, RTCBuildQuality.Medium, dynamic: true))
         {
             var geometry = CreateDeformableGrid(GridSize, RTCBuildQuality.Refit);
             scene.AttachGeometry(geometry);

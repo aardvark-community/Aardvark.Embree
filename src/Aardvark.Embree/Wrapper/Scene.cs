@@ -149,6 +149,9 @@ public partial class Scene : IDisposable
     /// </example>
     public Scene(Device device, RTCBuildQuality quality, bool dynamic)
     {
+        if (quality == RTCBuildQuality.Refit)
+            throw new ArgumentException("RTCBuildQuality.Refit is not valid for scenes. Use Low, Medium, or High for scenes; Refit applies to geometry updates.", nameof(quality));
+
         m_device = device;
         Handle = EmbreeAPI.rtcNewScene(device.Handle);
         m_device.CheckError("Scene.rtcNewScene");

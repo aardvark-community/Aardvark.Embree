@@ -698,6 +698,15 @@ public class UserGeometryTests
 public class BuildQualityErrorTests
 {
     [Fact]
+    public void SceneConstructorRejectsRefitBuildQuality()
+    {
+        using var device = new Device();
+        var ex = Assert.Throws<ArgumentException>(() => new Scene(device, RTCBuildQuality.Refit, dynamic: false));
+
+        Assert.Contains("RTCBuildQuality.Refit", ex.Message);
+    }
+
+    [Fact]
     public void SceneConstructorClearsInvalidBuildQualityError()
     {
         using var device = new Device();
