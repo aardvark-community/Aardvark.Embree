@@ -1,3 +1,8 @@
+### 0.4.2
+- enforce Embree alignment requirements across ray/hit, point query, and BVH APIs
+- add alignment validation helpers and tests
+- document direct P/Invoke alignment requirements
+
 ### 0.4.1
 - harden native callback lifetimes by retaining delegates on Device
 - validate update buffer sizes for geometry update APIs
