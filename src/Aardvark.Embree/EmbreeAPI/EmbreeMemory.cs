@@ -42,6 +42,25 @@ public static class EmbreeMemory
         Marshal.FreeHGlobal(raw);
     }
 
+    /// <summary>
+    /// Validates that an RTCRayHit pointer meets the alignment requirement for the current platform.
+    /// </summary>
+    public static void ValidateRayHitAlignment(IntPtr rayHitPtr, string context = null)
+    {
+        if (rayHitPtr == IntPtr.Zero)
+            throw new ArgumentNullException(nameof(rayHitPtr));
+
+        var alignment = GetRayHitAlignment();
+        var address = (ulong)rayHitPtr.ToInt64();
+        if (address % alignment != 0)
+        {
+            var location = string.IsNullOrWhiteSpace(context) ? string.Empty : $" ({context})";
+            throw new InvalidOperationException(
+                $"RTCRayHit pointer must be {alignment}-byte aligned on this platform{location}. " +
+                "Use EmbreeMemory.AllocRayHit or ensure manual alignment.");
+        }
+    }
+
     private static nuint GetRayHitAlignment()
     {
         if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX) &&
