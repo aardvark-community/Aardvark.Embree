@@ -694,3 +694,26 @@ public class UserGeometryTests
         Assert.NotEqual(IntPtr.Zero, geometry.Handle);
     }
 }
+
+public class BuildQualityErrorTests
+{
+    [Fact]
+    public void SceneConstructorClearsInvalidBuildQualityError()
+    {
+        using var device = new Device();
+        var ex = Assert.Throws<InvalidOperationException>(() => new Scene(device, (RTCBuildQuality)999999, dynamic: false));
+
+        Assert.Contains("Scene.rtcSetSceneBuildQuality", ex.Message);
+        Assert.Contains("invalid build quality", ex.Message, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
+    public void GeometryConstructorClearsInvalidBuildQualityError()
+    {
+        using var device = new Device();
+        var ex = Assert.Throws<InvalidOperationException>(() => new EmbreeGeometry(device, RTCGeometryType.User, (RTCBuildQuality)999999));
+
+        Assert.Contains("EmbreeGeometry.rtcSetGeometryBuildQuality", ex.Message);
+        Assert.Contains("invalid build quality", ex.Message, StringComparison.OrdinalIgnoreCase);
+    }
+}

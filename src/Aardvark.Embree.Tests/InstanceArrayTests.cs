@@ -379,7 +379,6 @@ public class InstanceArrayTests
 
         using var instanceArray = new InstanceArray(device, instScene, 2, quality);
 
-        // Must set buffer first
         var transforms = new Affine3f[]
         {
             Affine3f.Identity,
@@ -387,9 +386,9 @@ public class InstanceArrayTests
         };
         instanceArray.SetTransformBuffer(transforms);
 
-        // Now set individual instance transform
-        instanceArray.SetInstanceTransform(0, Affine3f.Translation(5, 5, 5));
-        instanceArray.SetInstanceTransform(1, Affine3f.Translation(10, 10, 10));
+        transforms[0] = Affine3f.Translation(5, 5, 5);
+        transforms[1] = Affine3f.Translation(10, 10, 10);
+        instanceArray.SetTransformBuffer(transforms);
 
         instanceArray.Commit();
     }

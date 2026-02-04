@@ -151,10 +151,13 @@ public partial class Scene : IDisposable
     {
         m_device = device;
         Handle = EmbreeAPI.rtcNewScene(device.Handle);
+        m_device.CheckError("Scene.rtcNewScene");
         var flags = RTCSceneFlags.Robust | RTCSceneFlags.ContextFilterFunction;
         if (dynamic) flags |= RTCSceneFlags.Dynamic;
         EmbreeAPI.rtcSetSceneFlags(Handle, flags);
+        m_device.CheckError("Scene.rtcSetSceneFlags");
         EmbreeAPI.rtcSetSceneBuildQuality(Handle, quality);
+        m_device.CheckError("Scene.rtcSetSceneBuildQuality");
     }
 
     /// <summary>

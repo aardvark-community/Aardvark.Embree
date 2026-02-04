@@ -50,6 +50,7 @@ public class EmbreeGeometry : IDisposable
         Handle = EmbreeAPI.rtcNewGeometry(device.Handle, type);
         device.CheckError("EmbreeGeometry.rtcNewGeometry");
         EmbreeAPI.rtcSetGeometryBuildQuality(Handle, quality);
+        device.CheckError("EmbreeGeometry.rtcSetGeometryBuildQuality");
     }
 
     /// <summary>Releases resources</summary>
