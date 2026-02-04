@@ -45,11 +45,14 @@ public class DirectInstanceTestHeapAlloc
     }
 
     [Fact]
-    public void DirectPInvoke_InstanceGeometry_HeapAllocated()
+    public unsafe void DirectPInvoke_InstanceGeometry_HeapAllocated()
     {
         Console.WriteLine("=== Direct P/Invoke Instance Test (Heap Allocated) ===");
 
         IntPtr device = EmbreeAPI.rtcNewDevice(null);
+        var rayHitSize = sizeof(RTCRayHit);
+        var marshalSize = Marshal.SizeOf<RTCRayHit>();
+        Console.WriteLine($"RTCRayHit sizeof: {rayHitSize}, Marshal.SizeOf: {marshalSize}");
         var version = (int)EmbreeAPI.rtcGetDeviceProperty(device, RTCDeviceProperty.Version);
         Console.WriteLine($"Embree Version: {version}");
         IntPtr sourceScene = EmbreeAPI.rtcNewScene(device);
@@ -104,7 +107,7 @@ public class DirectInstanceTestHeapAlloc
             LogDeviceError(device, "after rtcCommitScene(topScene)");
 
             // HEAP ALLOCATE RTCRayHit
-            IntPtr rayhitPtr = Marshal.AllocHGlobal(Marshal.SizeOf<RTCRayHit>());
+            IntPtr rayhitPtr = Marshal.AllocHGlobal(rayHitSize);
             try
             {
                 RTCRayHit* rayhit = (RTCRayHit*)rayhitPtr;

@@ -102,6 +102,9 @@ public class InstanceIntersectDiagnostics
         IntPtr device = EmbreeAPI.rtcNewDevice(null);
         var version = (int)EmbreeAPI.rtcGetDeviceProperty(device, RTCDeviceProperty.Version);
         Console.WriteLine($"Embree Version: {version}");
+        var rayHitSize = sizeof(RTCRayHit);
+        var marshalSize = Marshal.SizeOf<RTCRayHit>();
+        Console.WriteLine($"RTCRayHit sizeof: {rayHitSize}, Marshal.SizeOf: {marshalSize}");
 
         IntPtr sourceScene = EmbreeAPI.rtcNewScene(device);
         IntPtr geom = EmbreeAPI.rtcNewGeometry(device, RTCGeometryType.Triangle);
@@ -159,12 +162,12 @@ public class InstanceIntersectDiagnostics
         {
             if (allocationMode == AllocationMode.HeapUnaligned)
             {
-                rayhitPtr = Marshal.AllocHGlobal(Marshal.SizeOf<RTCRayHit>());
+                rayhitPtr = Marshal.AllocHGlobal(rayHitSize);
                 rayhit = (RTCRayHit*)rayhitPtr;
             }
             else if (allocationMode == AllocationMode.HeapAligned)
             {
-                var size = (nuint)Marshal.SizeOf<RTCRayHit>();
+                var size = (nuint)rayHitSize;
                 alignedPtrRaw = NativeMemory.AlignedAlloc(size, 16);
                 if (alignedPtrRaw == null)
                     throw new InvalidOperationException("AlignedAlloc returned null.");
@@ -172,7 +175,7 @@ public class InstanceIntersectDiagnostics
             }
             else
             {
-                byte* stackBuffer = stackalloc byte[Marshal.SizeOf<RTCRayHit>() + 15];
+                byte* stackBuffer = stackalloc byte[rayHitSize + 15];
                 IntPtr alignedPtr = new IntPtr(((long)stackBuffer + 15) & ~15L);
                 rayhit = (RTCRayHit*)alignedPtr;
             }
