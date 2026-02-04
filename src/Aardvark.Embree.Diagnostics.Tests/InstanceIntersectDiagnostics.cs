@@ -8,16 +8,6 @@ namespace Aardvark.Embree.Diagnostics.Tests;
 public class InstanceIntersectDiagnostics
 {
     [Fact]
-    public unsafe void DirectInstanceIntersect_HeapAllocated()
-    {
-        if (!RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-            return;
-
-        Console.WriteLine("=== DirectInstanceIntersect_HeapAllocated ===");
-        RunDirectInstanceIntersect(AllocationMode.HeapUnaligned, CleanupMode.Full);
-    }
-
-    [Fact]
     public unsafe void DirectInstanceIntersect_StackAllocated()
     {
         if (!RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
@@ -28,73 +18,33 @@ public class InstanceIntersectDiagnostics
     }
 
     [Fact]
-    public unsafe void DirectInstanceIntersect_HeapAligned16()
+    public unsafe void DirectInstanceIntersect_HeapAligned()
     {
         if (!RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
             return;
 
-        Console.WriteLine("=== DirectInstanceIntersect_HeapAligned16 ===");
-        RunDirectInstanceIntersect(AllocationMode.HeapAligned16, CleanupMode.Full);
+        Console.WriteLine("=== DirectInstanceIntersect_HeapAligned ===");
+        RunDirectInstanceIntersect(AllocationMode.HeapAligned, CleanupMode.Full);
     }
 
     [Fact]
-    public unsafe void DirectInstanceIntersect_HeapAligned16_NoCleanup()
+    public unsafe void DirectInstanceIntersect_HeapAligned_NoCleanup()
     {
         if (!RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
             return;
 
-        Console.WriteLine("=== DirectInstanceIntersect_HeapAligned16_NoCleanup ===");
-        RunDirectInstanceIntersect(AllocationMode.HeapAligned16, CleanupMode.None);
+        Console.WriteLine("=== DirectInstanceIntersect_HeapAligned_NoCleanup ===");
+        RunDirectInstanceIntersect(AllocationMode.HeapAligned, CleanupMode.None);
     }
 
     [Fact]
-    public unsafe void DirectInstanceIntersect_HeapAligned64()
+    public unsafe void DirectInstanceIntersect_HeapAligned_SkipInstanceRelease()
     {
         if (!RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
             return;
 
-        Console.WriteLine("=== DirectInstanceIntersect_HeapAligned64 ===");
-        RunDirectInstanceIntersect(AllocationMode.HeapAligned64, CleanupMode.Full);
-    }
-
-    [Fact]
-    public unsafe void DirectInstanceIntersect_HeapAligned64_NoCleanup()
-    {
-        if (!RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-            return;
-
-        Console.WriteLine("=== DirectInstanceIntersect_HeapAligned64_NoCleanup ===");
-        RunDirectInstanceIntersect(AllocationMode.HeapAligned64, CleanupMode.None);
-    }
-
-    [Fact]
-    public unsafe void DirectInstanceIntersect_HeapAligned32()
-    {
-        if (!RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-            return;
-
-        Console.WriteLine("=== DirectInstanceIntersect_HeapAligned32 ===");
-        RunDirectInstanceIntersect(AllocationMode.HeapAligned32, CleanupMode.Full);
-    }
-
-    [Fact]
-    public unsafe void DirectInstanceIntersect_HeapAligned32_NoCleanup()
-    {
-        if (!RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-            return;
-
-        Console.WriteLine("=== DirectInstanceIntersect_HeapAligned32_NoCleanup ===");
-        RunDirectInstanceIntersect(AllocationMode.HeapAligned32, CleanupMode.None);
-    }
-
-    [Fact]
-    public unsafe void DirectInstanceIntersect_HeapAligned16_SkipInstanceRelease()
-    {
-        if (!RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-            return;
-
-        Console.WriteLine("=== DirectInstanceIntersect_HeapAligned16_SkipInstanceRelease ===");
-        RunDirectInstanceIntersect(AllocationMode.HeapAligned16, CleanupMode.SkipInstanceRelease);
+        Console.WriteLine("=== DirectInstanceIntersect_HeapAligned_SkipInstanceRelease ===");
+        RunDirectInstanceIntersect(AllocationMode.HeapAligned, CleanupMode.SkipInstanceRelease);
     }
 
     [Fact]
@@ -137,10 +87,7 @@ public class InstanceIntersectDiagnostics
     private enum AllocationMode
     {
         StackAligned,
-        HeapUnaligned,
-        HeapAligned16,
-        HeapAligned32,
-        HeapAligned64,
+        HeapAligned,
     }
 
     private enum CleanupMode
@@ -210,27 +157,13 @@ public class InstanceIntersectDiagnostics
 
         RTCRayHit* rayhit;
         IntPtr rayhitPtr = IntPtr.Zero;
-        void* alignedPtrRaw = null;
         try
         {
-            if (allocationMode == AllocationMode.HeapUnaligned)
+            if (allocationMode == AllocationMode.HeapAligned)
             {
-                rayhitPtr = Marshal.AllocHGlobal(rayHitSize);
+                rayhitPtr = EmbreeMemory.AllocRayHit(out var allocationSize, out var alignment);
+                Console.WriteLine($"Heap allocationSize={allocationSize}, alignment={alignment}");
                 rayhit = (RTCRayHit*)rayhitPtr;
-            }
-            else if (allocationMode == AllocationMode.HeapAligned16 || allocationMode == AllocationMode.HeapAligned32 || allocationMode == AllocationMode.HeapAligned64)
-            {
-                var alignment = allocationMode switch
-                {
-                    AllocationMode.HeapAligned64 => 64u,
-                    AllocationMode.HeapAligned32 => 32u,
-                    _ => 16u
-                };
-                var size = RoundUpToAlignment((nuint)rayHitSize, alignment);
-                alignedPtrRaw = NativeMemory.AlignedAlloc(size, alignment);
-                if (alignedPtrRaw == null)
-                    throw new InvalidOperationException("AlignedAlloc returned null.");
-                rayhit = (RTCRayHit*)alignedPtrRaw;
             }
             else
             {
@@ -284,15 +217,9 @@ public class InstanceIntersectDiagnostics
         {
             if (rayhitPtr != IntPtr.Zero)
             {
-                Console.WriteLine("Freeing rayhit (Marshal.FreeHGlobal)...");
-                Marshal.FreeHGlobal(rayhitPtr);
-                Console.WriteLine("Freed rayhit (Marshal.FreeHGlobal).");
-            }
-            if (alignedPtrRaw != null)
-            {
-                Console.WriteLine("Freeing rayhit (NativeMemory.AlignedFree)...");
-                NativeMemory.AlignedFree(alignedPtrRaw);
-                Console.WriteLine("Freed rayhit (NativeMemory.AlignedFree).");
+                Console.WriteLine("Freeing rayhit (EmbreeMemory.FreeAligned)...");
+                EmbreeMemory.FreeAligned(rayhitPtr);
+                Console.WriteLine("Freed rayhit (EmbreeMemory.FreeAligned).");
             }
         }
 
@@ -337,9 +264,4 @@ public class InstanceIntersectDiagnostics
             Console.WriteLine($"[{label}] ErrorDetail={detail}");
     }
 
-    private static nuint RoundUpToAlignment(nuint size, uint alignment)
-    {
-        var mask = (nuint)alignment - 1;
-        return (size + mask) & ~mask;
-    }
 }
